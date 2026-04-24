@@ -1,0 +1,5 @@
+VogaApi/
+.vs/
+bin/
+obj/
+*.user

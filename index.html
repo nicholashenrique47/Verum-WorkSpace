@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verum - Plataforma Jurídica</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <aside id="menu-drawer" class="drawer">
+        <button id="btn-fechar-menu" class="fechar-menu">&times;</button>
+        <nav class="links-drawer">
+            <a href="#home">Início</a>
+            <a href="#atuacao">Áreas de Atuação</a>
+            <a href="#contato">Fale Conosco</a>
+            <a href="/login.html" class="btn-restrito">Painel do Cliente</a>
+        </nav>
+    </aside>
+
+    <header class="navbar-principal">
+        <div class="logo-escritorio skeleton-dark" id="nome-escritorio" style="min-width: 150px; border-radius: 4px;">Carregando...</div>
+
+        <nav class="navbar-links">
+            <a href="#home">Início</a>
+            <a href="#atuacao">Especialidades</a>
+            <a href="#contato">Contato</a>
+            <a href="portal-cliente.html" style="color: var(--cor-destaque); font-weight: bold; margin-right: 15px;">Portal do Cliente</a>
+            <a href="login.html" class="btn-restrito">Acessar Plataforma</a>
+        </nav>
+
+        <button id="btn-abrir-menu" class="abrir-menu">&#9776;</button>
+    </header>
+
+    <main id="home" class="hero-section" style="background: linear-gradient(135deg, rgba(11, 19, 43, 0.9) 0%, rgba(6, 9, 20, 0.9) 100%), url('https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2000&auto=format&fit=crop') center/cover; padding-top: 80px;">
+        <div class="hero-glass-container reveal" style="max-width: 800px; padding: 60px 40px; border: 1px solid rgba(255,255,255,0.1);">
+            <h1 id="titulo-principal" style="font-size: 3rem; line-height: 1.2;">Excelência e Tradição Jurídica</h1>
+            <p style="font-size: 1.2rem; margin-top: 20px;">Tecnologia aliada à experiência para proteger o seu patrimônio com máxima agilidade e segurança.</p>
+            <div style="margin-top: 40px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                <a href="#whatsapp" class="btn-primario" id="btn-whatsapp" style="padding: 15px 30px; font-size: 1.1rem;">Agendar Consulta</a>
+                <a href="portal-cliente.html" class="btn-primario" style="padding: 15px 30px; font-size: 1.1rem; background: transparent; border: 1px solid #ccc; color: #fff;">Acompanhe seu Processo</a>
+            </div>
+        </div>
+    </main>
+
+    <section id="atuacao" class="secao-atuacao reveal">
+        <h2>Nossas Especialidades</h2>
+        <div class="grid-cards" id="container-areas-atuacao">
+        </div>
+    </section>
+
+    <!-- Depoimentos (Fase G) -->
+    <section class="secao-atuacao reveal" style="background: rgba(0,0,0,0.2);">
+        <h2>O que Dizem Nossos Clientes</h2>
+        <div class="testimonials-grid" style="max-width: 1000px; margin: 0 auto;">
+            <div class="testimonial-card">
+                <p class="testimonial-text">"O acompanhamento pelo Portal do Cliente mudou tudo. Não precisei ligar uma vez sequer, estava tudo no aplicativo deles."</p>
+                <div class="testimonial-author">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop" alt="Cliente">
+                    <div>
+                        <strong style="color: #fff; display: block;">Juliana Fernandes</strong>
+                        <small style="color: var(--cor-destaque);">Causa Trabalhista</small>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Resolvi meu divórcio em tempo recorde. A agilidade com a assinatura digital no celular foi impressionante."</p>
+                <div class="testimonial-author">
+                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop" alt="Cliente">
+                    <div>
+                        <strong style="color: #fff; display: block;">Roberto Carlos Silva</strong>
+                        <small style="color: var(--cor-destaque);">Direito de Família</small>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Equipe extremamente profissional e tecnologia de ponta. Recomendo para qualquer empresa que precisa de assessoria."</p>
+                <div class="testimonial-author">
+                    <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop" alt="Cliente">
+                    <div>
+                        <strong style="color: #fff; display: block;">Mariana Costa</strong>
+                        <small style="color: var(--cor-destaque);">Assessoria Empresarial</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NOVO FOOTER -->
+    <footer id="contato" class="site-footer reveal">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4 style="display: flex; align-items: center; gap: 10px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Verum Workspace</h4>
+                <p>O futuro da gestão jurídica. Tecnologia de ponta, agilidade na emissão de documentos e equipe especializada.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Navegação</h4>
+                <a href="#home">Início</a>
+                <a href="#atuacao">Nossas Áreas</a>
+                <a href="login.html">Área Restrita SaaS</a>
+            </div>
+            <div class="footer-col">
+                <h4>Fale Conosco</h4>
+                <p>contato@verumworkspace.com</p>
+                <p>(11) 99999-9999</p>
+                <p>Av. Paulista, 1000 - São Paulo, SP</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Verum Workspace. Todos os direitos reservados.
+        </div>
+    </footer>
+
+    <!-- Verum AI Public Chatbot (Fase G) -->
+    <div class="ai-fab" id="btn-public-chat" title="Atendimento Inteligente" style="background: #2fd65e;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    </div>
+
+    <div class="ai-chat-window" id="public-chat-window">
+        <div class="ai-chat-header" style="background: #2fd65e; color: #000; border: none;">
+            <span>Atendimento Virtual</span>
+            <button style="background: none; border: none; color: #000; cursor: pointer; font-size: 1.2rem;" onclick="document.getElementById('public-chat-window').classList.remove('open')">&times;</button>
+        </div>
+        <div class="ai-chat-body" id="public-chat-body">
+            <div class="ai-msg system" style="background: rgba(47, 214, 94, 0.1);">
+                Olá! Sou o assistente da Verum. Como podemos ajudar com o seu caso jurídico hoje? Me conte um pouco da sua situação e eu te direciono para um especialista.
+            </div>
+        </div>
+        <div class="ai-chat-input">
+            <input type="text" id="public-input" placeholder="Digite aqui...">
+            <button id="btn-public-send" style="color: #2fd65e;">Enviar</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Lógica simples do Chatbot Público
+        const btnPublicChat = document.getElementById('btn-public-chat');
+        const publicChatWindow = document.getElementById('public-chat-window');
+        const btnPublicSend = document.getElementById('btn-public-send');
+        const publicInput = document.getElementById('public-input');
+        const publicChatBody = document.getElementById('public-chat-body');
+
+        btnPublicChat.addEventListener('click', () => {
+            publicChatWindow.classList.toggle('open');
+        });
+
+        function sendPublicMessage() {
+            const text = publicInput.value.trim();
+            if(!text) return;
+
+            const userMsg = document.createElement('div');
+            userMsg.className = 'ai-msg user';
+            userMsg.innerText = text;
+            publicChatBody.appendChild(userMsg);
+            publicInput.value = '';
+            publicChatBody.scrollTop = publicChatBody.scrollHeight;
+
+            setTimeout(() => {
+                const sysMsg = document.createElement('div');
+                sysMsg.className = 'ai-msg system';
+                sysMsg.style.background = 'rgba(47, 214, 94, 0.1)';
+                sysMsg.innerHTML = `Compreendo. Seu caso parece se enquadrar na área de Família/Trabalhista. <br><br><a href="#" style="color: #2fd65e; text-decoration: underline;">Clique aqui</a> para falar no WhatsApp diretamente com um advogado especialista nesse tema.`;
+                publicChatBody.appendChild(sysMsg);
+                publicChatBody.scrollTop = publicChatBody.scrollHeight;
+            }, 1000);
+        }
+
+        btnPublicSend.addEventListener('click', sendPublicMessage);
+        publicInput.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') sendPublicMessage();
+        });
+    </script>
+</body>
+
+</html>

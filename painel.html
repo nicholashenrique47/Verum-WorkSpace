@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Restrito - Verum</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Estilos específicos rápidos para o Painel */
+        .painel-container {
+            padding: 100px 20px 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header-painel {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-painel h1 {
+            font-family: var(--fonte-titulos);
+            color: var(--cor-destaque);
+        }
+
+        /* O Formulário de Geração Expresso */
+        .form-gerador {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-grupo {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .form-grupo label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #E0E0E0;
+        }
+
+        .form-grupo input,
+        .form-grupo select {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-family: var(--fonte-textos);
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .form-grupo input:focus,
+        .form-grupo select:focus {
+            border-color: var(--cor-destaque);
+        }
+
+        select option {
+            background-color: #060914; /* Fundo escuro */
+            color: #fff; /* Texto branco */
+        }
+
+        .btn-gerar {
+            margin-top: 10px;
+            width: 100%;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Splash Screen (Fase K) -->
+    <div class="splash-overlay" id="splash-screen">
+        <div class="splash-logo-text">Verum</div>
+        <div class="splash-subtitle">WORKSPACE</div>
+        <div class="splash-bar"><div class="splash-bar-inner"></div></div>
+    </div>
+
+    <div class="saas-layout">
+        <!-- Sidebar Fixa -->
+        <aside class="saas-sidebar">
+            <div class="saas-sidebar-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--cor-destaque);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> <span>Verum</span>
+            </div>
+            <ul class="saas-menu">
+                <li><a href="#dashboard" class="ativo" data-tooltip="Visão Geral"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg> <span class="menu-label">Visão Geral</span></a></li>
+                <li><a href="#processos" data-tooltip="Processos"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> <span class="menu-label">Processos</span></a></li>
+                <li><a href="#radar" data-tooltip="Radar Oficial"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path></svg> <span class="menu-label">Radar Oficial</span></a></li>
+                <li><a href="#jurimetria" data-tooltip="Jurimetria"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg> <span class="menu-label">Jurimetria (IA)</span></a></li>
+                <li><a href="#drive" data-tooltip="Verum Drive"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> <span class="menu-label">Verum Drive</span></a></li>
+                <li><a href="#agenda" data-tooltip="Agenda"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> <span class="menu-label">Agenda Judicial</span></a></li>
+                <li><a href="#financeiro" data-tooltip="Financeiro"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> <span class="menu-label">Financeiro</span></a></li>
+                <li><a href="#emissor" data-tooltip="Emissor"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> <span class="menu-label">Emissor Ágil</span></a></li>
+                <li><a href="#clientes" data-tooltip="Clientes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> <span class="menu-label">Meus Clientes</span></a></li>
+                <li><a href="#assinaturas" data-tooltip="Assinaturas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> <span class="menu-label">Assinaturas</span></a></li>
+                <li><a href="#videocall" data-tooltip="Verum Meet"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg> <span class="menu-label">Verum Meet</span></a></li>
+                <li><a href="#equipe" data-tooltip="Equipe"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> <span class="menu-label">Equipe</span></a></li>
+                <li style="margin-top: 30px;"><a href="index.html" data-tooltip="Sair"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> <span class="menu-label">Sair</span></a></li>
+            </ul>
+            <button class="sidebar-toggle" id="btn-toggle-sidebar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="11 17 6 12 11 7"></polyline><polyline points="18 17 13 12 18 7"></polyline></svg>
+                <span>Recolher</span>
+            </button>
+        </aside>
+
+        <!-- Área Principal -->
+        <main class="saas-main">
+            <!-- Topbar Premium -->
+            <header class="saas-topbar">
+                <div class="saas-search">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c757d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="input-busca-global" placeholder="Buscar documentos, clientes...">
+                </div>
+                <div class="saas-user-area" style="display: flex; align-items: center; gap: 15px;">
+                    <!-- Theme Toggle -->
+                    <div class="theme-toggle" id="btn-theme-toggle" title="Alternar Tema" style="cursor: pointer;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-theme"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </div>
+
+                    <!-- Sino de Notificações -->
+                    <div class="notification-bell" id="btn-notificacoes" style="cursor: pointer; position: relative;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <span class="notification-badge" id="badge-notificacoes">1</span>
+                    </div>
+
+                    <span style="color: #ccc; font-size: 0.9rem;">Dr. Advogado</span>
+                    <div class="saas-avatar" title="Configurações">A</div>
+                </div>
+            </header>
+
+            <!-- Dropdown de Notificações -->
+            <div class="notification-dropdown" id="dropdown-notificacoes">
+                <div class="notif-header">Últimas Atividades</div>
+                <div class="notif-body" id="lista-notificacoes">
+                    <div class="notif-item">
+                        <strong>Sistema</strong><br>Bem-vindo ao Verum Workspace!
+                    </div>
+                </div>
+            </div>
+
+            <div class="saas-content">
+                <!-- Breadcrumbs (Fase K) -->
+                <div class="breadcrumb-bar" id="breadcrumb-bar">
+                    <a href="#dashboard">Verum</a>
+                    <span class="breadcrumb-sep">/</span>
+                    <span class="breadcrumb-current" id="breadcrumb-current">Visão Geral</span>
+                </div>
+
+                <!-- VIEW 1: DASHBOARD (Visão Geral) -->
+                <div id="view-dashboard" class="view-section view-active">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 30px;">
+                        <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Visão Geral</h1>
+                        <p style="color: #ccc; margin: 0;">Acompanhe a volumetria de produção do seu escritório.</p>
+                    </div>
+
+                    <!-- KPIs Dinâmicos (Fase K) -->
+                    <div class="kpi-row">
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background: rgba(212,175,55,0.15);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cor-destaque)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                            </div>
+                            <div class="kpi-number" id="kpi-total-docs">--</div>
+                            <div class="kpi-label">Docs Gerados</div>
+                            <div class="kpi-trend up" id="kpi-docs-trend"></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background: rgba(47,214,94,0.15);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2fd65e" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            </div>
+                            <div class="kpi-number" style="color: #2fd65e;" id="kpi-assinados">--</div>
+                            <div class="kpi-label">Assinados</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background: rgba(255,204,0,0.15);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffcc00" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                            </div>
+                            <div class="kpi-number" style="color: #ffcc00;" id="kpi-pendentes">--</div>
+                            <div class="kpi-label">Pendentes</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background: rgba(0,195,255,0.15);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00c3ff" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            </div>
+                            <div class="kpi-number" style="color: #00c3ff;" id="kpi-clientes">--</div>
+                            <div class="kpi-label">Clientes</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;">
+                        <div class="hero-glass-container" style="flex: 2; min-width: 300px; padding: 20px;">
+                            <canvas id="graficoDocumentos" style="max-height: 150px;"></canvas>
+                        </div>
+                        <div class="hero-glass-container" style="flex: 1; min-width: 200px; padding: 20px; display: flex; align-items: center; justify-content: center;">
+                            <canvas id="graficoTipos" style="max-height: 150px; max-width: 150px;"></canvas>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <div class="hero-glass-container" style="flex: 2; min-width: 300px; text-align: left;">
+                            <div id="secao-historico">
+                                <h3 style="color: var(--cor-destaque); margin-bottom: 15px;">Últimos Documentos Gerados</h3>
+                                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                                            <th style="padding: 10px;">Data</th>
+                                            <th style="padding: 10px;">Cliente</th>
+                                            <th style="padding: 10px;">Documento</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabela-historico">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- To-Do List (Fase G) -->
+                        <div class="todo-container" style="flex: 1; min-width: 250px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <h3 style="color: var(--cor-destaque); margin: 0; font-size: 1.1rem;">Checklist Diária</h3>
+                                <button class="btn-primario" onclick="alert('Funcionalidade de Relatório em Breve!')" style="padding: 5px 10px; font-size: 0.8rem; background: transparent; border: 1px solid #ccc; color: #ccc;">Exportar Resumo Diário</button>
+                            </div>
+                            
+                            <div id="todo-list">
+                                <label class="todo-item">
+                                    <input type="checkbox" class="todo-checkbox">
+                                    <span class="todo-text">Ligar para a cliente Mariana às 14h</span>
+                                </label>
+                                <label class="todo-item">
+                                    <input type="checkbox" class="todo-checkbox" checked>
+                                    <span class="todo-text">Assinar o contrato de honorários de ontem</span>
+                                </label>
+                                <label class="todo-item">
+                                    <input type="checkbox" class="todo-checkbox">
+                                    <span class="todo-text">Revisar petição do caso Almeida</span>
+                                </label>
+                            </div>
+
+                            <div class="todo-input-group">
+                                <input type="text" id="todo-input" placeholder="Nova tarefa...">
+                                <button class="btn-primario" id="btn-add-todo" style="padding: 8px 15px;">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 5: EMISSOR ÁGIL -->
+                <div id="view-emissor" class="view-section">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 30px;">
+                        <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Emissor Ágil de Peças</h1>
+                        <p style="color: #ccc; margin: 0;">Geração de documentos avançada baseada nos seus clientes cadastrados.</p>
+                    </div>
+
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <!-- Formulário de Emissão (Simplificado) -->
+                        <div class="hero-glass-container" style="flex: 1; min-width: 300px; text-align: left;">
+                            <h3 style="margin-bottom: 15px; color: var(--cor-destaque);">Parâmetros da Peça</h3>
+                            
+                            <form id="form-documento" class="form-gerador">
+                                <div class="form-grupo">
+                                    <label>Selecionar Cliente (Opcional)</label>
+                                    <select id="seletor-cliente" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 4px;">
+                                        <option value="">-- Selecione ou digite manualmente abaixo --</option>
+                                        <option value="Carlos Almeida">Carlos Almeida (Ação Indenizatória)</option>
+                                        <option value="Empresa XPTO">Empresa XPTO (Defesa Trabalhista)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-grupo">
+                                    <label>Tipo de Documento</label>
+                                    <select id="tipo-doc" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 4px;" required>
+                                        <option value="Procuração Ad Judicia">Procuração Ad Judicia</option>
+                                        <option value="Contrato de Honorários">Contrato de Honorários</option>
+                                        <option value="Petição Inicial">Petição Inicial</option>
+                                    </select>
+                                </div>
+                                <div class="form-grupo">
+                                    <label for="nome-cliente">Nome Completo do Cliente</label>
+                                    <input type="text" id="nome-cliente" placeholder="Ex: João da Silva" required>
+                                </div>
+                                <div class="form-grupo">
+                                    <label for="cpf-cliente">CPF</label>
+                                    <input type="text" id="cpf-cliente" placeholder="000.000.000-00" required>
+                                </div>
+                                <div class="form-grupo">
+                                    <label for="acao-cliente">Objeto / Ação</label>
+                                    <input type="text" id="acao-cliente" placeholder="Ex: Ação de Indenização por Danos Morais" required>
+                                </div>
+                                <button type="submit" class="btn-primario btn-gerar">Revisar e Gerar Peça</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 9: RADAR OFICIAL (Fase H) -->
+                <div id="view-radar" class="view-section">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Radar Oficial</h1>
+                            <p style="color: #ccc; margin: 0;">Monitoramento automático de diários da justiça.</p>
+                        </div>
+                        <span class="badge" style="background: #ff4d4d; color: #fff; padding: 5px 10px; border-radius: 4px;">3 Novas Publicações</span>
+                    </div>
+
+                    <div class="hero-glass-container" style="max-width: 800px; text-align: left;">
+                        <!-- Radar Item 1 -->
+                        <div class="radar-card">
+                            <div class="radar-content">
+                                <span class="radar-badge">Urgente</span>
+                                <h4 style="color: #fff; margin-bottom: 5px;">Ação Trabalhista nº 0001234-56.2023.5.02.0001</h4>
+                                <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px;"><strong>Tribunal:</strong> TRT-2 (São Paulo) | <strong>Diário Oficial:</strong> 22/04/2026</p>
+                                <p style="color: #ccc; font-size: 0.85rem; border-left: 2px solid rgba(255,255,255,0.1); padding-left: 10px; font-style: italic;">"Ficam intimadas as partes para manifestação sobre o laudo pericial no prazo sucessivo de 05 (cinco) dias, a iniciar pela reclamante..."</p>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-left: 20px;">
+                                <button class="btn-primario" style="padding: 8px 15px; font-size: 0.85rem;" onclick="alert('Prazo adicionado à Agenda Judicial!')">+ Criar Prazo</button>
+                                <button class="btn-restrito" style="padding: 8px 15px; font-size: 0.85rem; background: transparent; border: 1px solid #ccc; color: #ccc;">Lido</button>
+                            </div>
+                        </div>
+
+                        <!-- Radar Item 2 -->
+                        <div class="radar-card" style="border-color: #2fd65e;">
+                            <div class="radar-content">
+                                <span class="radar-badge" style="background: rgba(47, 214, 94, 0.15); color: #2fd65e;">Sentença</span>
+                                <h4 style="color: #fff; margin-bottom: 5px;">Divórcio Consensual nº 1009876-11.2024.8.26.0100</h4>
+                                <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px;"><strong>Tribunal:</strong> TJSP | <strong>Diário Oficial:</strong> 21/04/2026</p>
+                                <p style="color: #ccc; font-size: 0.85rem; border-left: 2px solid rgba(255,255,255,0.1); padding-left: 10px; font-style: italic;">"Ante o exposto, HOMOLOGO o acordo entabulado entre as partes, decretando o divórcio..."</p>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-left: 20px;">
+                                <button class="btn-primario" style="padding: 8px 15px; font-size: 0.85rem;" onclick="alert('Notificando cliente via Portal...')">Notificar Cliente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 10: VERUM DRIVE (Fase H) -->
+                <div id="view-drive" class="view-section">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Verum Drive</h1>
+                            <p style="color: #ccc; margin: 0;">Gestão Eletrônica de Documentos na Nuvem.</p>
+                        </div>
+                        <button class="btn-primario" onclick="alert('Nova pasta criada.')">+ Nova Pasta</button>
+                    </div>
+
+                    <!-- Upload Zone -->
+                    <div class="upload-zone" id="drive-dropzone" onclick="alert('Abrindo seletor de arquivos...')">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        <h3 style="margin-bottom: 5px; color: inherit;">Arraste arquivos pesados para cá</h3>
+                        <p style="margin: 0; font-size: 0.9rem;">PDFs, Fotos, Vídeos, Documentos do Word</p>
+                    </div>
+
+                    <h3 style="color: var(--cor-destaque); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 20px;">Meus Clientes</h3>
+                    <div class="drive-grid">
+                        <div class="drive-folder">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"></path></svg>
+                            <h4 style="color: #fff; margin-bottom: 5px; font-size: 1rem;">Carlos Almeida</h4>
+                            <p style="color: #aaa; font-size: 0.8rem;">12 Arquivos</p>
+                        </div>
+                        <div class="drive-folder">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"></path></svg>
+                            <h4 style="color: #fff; margin-bottom: 5px; font-size: 1rem;">Mariana Silva</h4>
+                            <p style="color: #aaa; font-size: 0.8rem;">4 Arquivos</p>
+                        </div>
+                        <div class="drive-folder">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"></path></svg>
+                            <h4 style="color: #fff; margin-bottom: 5px; font-size: 1rem;">Empresa XPTO</h4>
+                            <p style="color: #aaa; font-size: 0.8rem;">56 Arquivos</p>
+                        </div>
+                        <div class="drive-folder">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                            <h4 style="color: #fff; margin-bottom: 5px; font-size: 1rem; margin-top: 5px;">Tabela_Custas.pdf</h4>
+                            <p style="color: #aaa; font-size: 0.8rem;">2.4 MB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 11: JURIMETRIA (Fase I) -->
+                <div id="view-jurimetria" class="view-section">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 30px;">
+                        <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Jurimetria e Predição</h1>
+                        <p style="color: #ccc; margin: 0;">Análise de dados e inteligência artificial para prever resultados judiciais.</p>
+                    </div>
+
+                    <div class="hero-glass-container" style="max-width: 900px; text-align: left; margin-bottom: 30px;">
+                        <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                            <div class="form-grupo" style="flex: 2; min-width: 200px;">
+                                <label for="juri-assunto">Assunto / Tribunal</label>
+                                <input type="text" id="juri-assunto" placeholder="Ex: Indenização Dano Moral - TJSP" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff;">
+                            </div>
+                            <button class="btn-primario" onclick="alert('Analisando 14.502 jurisprudências do tribunal selecionado...')">Analisar com IA</button>
+                        </div>
+
+                        <!-- Dashboard Mockado -->
+                        <div style="margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            <div style="background: rgba(47, 214, 94, 0.1); border: 1px solid rgba(47, 214, 94, 0.3); border-radius: 8px; padding: 20px; text-align: center;">
+                                <h3 style="color: #2fd65e; font-size: 2.5rem; margin-bottom: 5px;">78%</h3>
+                                <p style="color: #ccc; font-size: 0.9rem; margin: 0;">Probabilidade de Êxito</p>
+                            </div>
+                            <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 8px; padding: 20px; text-align: center;">
+                                <h3 style="color: var(--cor-destaque); font-size: 2rem; margin-bottom: 5px;">R$ 12.500</h3>
+                                <p style="color: #ccc; font-size: 0.9rem; margin: 0;">Indenização Média Deferida</p>
+                            </div>
+                            <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 20px; text-align: center;">
+                                <h3 style="color: #fff; font-size: 2rem; margin-bottom: 5px;">14 meses</h3>
+                                <p style="color: #ccc; font-size: 0.9rem; margin: 0;">Tempo Médio de Duração</p>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                            <h4 style="color: var(--cor-destaque); margin-bottom: 10px;">Insights da IA:</h4>
+                            <p style="color: #ccc; font-size: 0.9rem; line-height: 1.6; font-style: italic;">"O magistrado da 4ª Vara Cível tem tendência de julgar improcedente se não houver prova documental robusta de negativação do nome. Recomenda-se anexar certidão do Serasa."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 12: VERUM MEET (Fase I) -->
+                <div id="view-videocall" class="view-section">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Verum Meet</h1>
+                            <p style="color: #ccc; margin: 0;">Sala de Mediação e Atendimento Virtual Integrada.</p>
+                        </div>
+                        <button class="btn-primario" onclick="Swal.fire('Link Copiado!', 'Envie este link para seu cliente: meet.verum.com/sala-123', 'success')">Copiar Link da Sala</button>
+                    </div>
+
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start;">
+                        <!-- Área de Vídeo -->
+                        <div class="hero-glass-container" style="flex: 2; min-width: 300px; padding: 10px; text-align: center; background: #000;">
+                            <!-- Mock de Câmera do Cliente -->
+                            <div style="height: 400px; border-radius: 8px; background: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800') center/cover; position: relative;">
+                                <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 4px; color: #fff; font-size: 0.8rem;">
+                                    Cliente (Mariana Silva)
+                                </div>
+                                <!-- Mock de Câmera do Advogado (Minimizada) -->
+                                <div style="position: absolute; top: 10px; right: 10px; width: 100px; height: 130px; border-radius: 8px; background: url('https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300') center/cover; border: 2px solid var(--cor-destaque);"></div>
+                            </div>
+                            
+                            <!-- Controles da Chamada -->
+                            <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px;">
+                                <button class="btn-restrito" style="border-radius: 50%; width: 50px; height: 50px; padding: 0; display: flex; align-items: center; justify-content: center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></button>
+                                <button class="btn-restrito" style="border-radius: 50%; width: 50px; height: 50px; padding: 0; display: flex; align-items: center; justify-content: center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"></path><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg></button>
+                                <button class="btn-restrito" style="border-radius: 50%; width: 50px; height: 50px; padding: 0; display: flex; align-items: center; justify-content: center; background: #ff4d4d; color: #fff; border-color: #ff4d4d;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"></path><line x1="23" y1="1" x2="1" y2="23"></line></svg></button>
+                            </div>
+                        </div>
+
+                        <!-- Área do Documento Compartilhado -->
+                        <div class="hero-glass-container" style="flex: 1; min-width: 300px; height: 465px; overflow-y: auto; padding: 15px;">
+                            <h4 style="color: var(--cor-destaque); margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">Apresentação de Documento</h4>
+                            <div style="background: #fff; color: #000; padding: 15px; border-radius: 4px; font-size: 0.75rem; text-align: justify; height: 350px; overflow-y: auto; font-family: serif;">
+                                <h3 style="text-align: center; margin-bottom: 10px;">CONTRATO DE HONORÁRIOS</h3>
+                                <p>Pelo presente instrumento particular, as partes: de um lado, CONTRATANTE, Mariana Silva; e de outro lado, CONTRATADO, Verum Office...</p>
+                                <p><strong>Cláusula 1:</strong> O objeto deste contrato é a prestação de serviços advocatícios na área cível...</p>
+                                <p><strong>Cláusula 2:</strong> Pela prestação dos serviços, o CONTRATANTE pagará o valor de R$ 2.500,00...</p>
+                            </div>
+                            <button class="btn-primario" style="width: 100%; margin-top: 10px; padding: 10px; font-size: 0.9rem;" onclick="alert('Solicitação de assinatura enviada para a tela do cliente!')">Solicitar Assinatura em Tela</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: MEUS CLIENTES (CRM) -->
+                <div id="view-clientes" class="view-section">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Meus Clientes</h1>
+                            <p style="color: #ccc; margin: 0;">Gestão simplificada da sua carteira (Mini-CRM).</p>
+                        </div>
+                        <button class="btn-restrito" onclick="exportarCSV()" style="height: 40px; padding: 0 15px; display: flex; align-items: center; gap: 8px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Exportar CSV
+                        </button>
+                    </div>
+
+                    <div class="hero-glass-container" style="max-width: 100%; text-align: left; margin-bottom: 30px; padding: 20px;">
+                        <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Cadastrar Novo Cliente</h3>
+                        <form id="form-novo-cliente" onsubmit="return false;" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                            <div class="form-grupo" style="flex: 2; min-width: 180px;">
+                                <label for="novo-nome">Nome Completo</label>
+                                <input type="text" id="novo-nome" placeholder="Ex: Maria Souza">
+                            </div>
+                            <div class="form-grupo" style="flex: 1; min-width: 140px;">
+                                <label for="novo-cpf">CPF</label>
+                                <input type="text" id="novo-cpf" placeholder="000.000.000-00">
+                            </div>
+                            <div class="form-grupo" style="flex: 1; min-width: 140px;">
+                                <label for="novo-telefone">Telefone</label>
+                                <input type="text" id="novo-telefone" placeholder="(00) 00000-0000">
+                            </div>
+                            <div class="form-grupo" style="flex: 2; min-width: 180px;">
+                                <label for="novo-email">E-mail</label>
+                                <input type="email" id="novo-email" placeholder="cliente@email.com">
+                            </div>
+                            <div class="form-grupo" style="flex: 2; min-width: 180px;">
+                                <label for="novo-acao">Tipo de Ação</label>
+                                <input type="text" id="novo-acao" placeholder="Ex: Ação Indenizatória">
+                            </div>
+                            <button type="button" class="btn-primario" style="height: 45px; padding: 0 20px;" onclick="salvarCliente()">Salvar</button>
+                        </form>
+                    </div>
+
+                    <div class="hero-glass-container" style="max-width: 100%; text-align: left;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="color: var(--cor-destaque); margin: 0;">Carteira de Clientes</h3>
+                            <input type="text" id="filtro-clientes" class="search-inline" placeholder="Filtrar clientes..." oninput="filtrarClientes()">
+                        </div>
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                                    <th style="padding: 10px;">Nome</th>
+                                    <th style="padding: 10px;">CPF</th>
+                                    <th style="padding: 10px;">Telefone</th>
+                                    <th style="padding: 10px;">Ação</th>
+                                    <th style="padding: 10px; text-align: right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-clientes">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+    <!-- Modal Detalhes do Cliente (Fase K) -->
+    <div class="modal-detalhes-cliente" id="modal-cliente">
+        <div class="modal-detalhes-inner">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="modal-cli-nome" style="margin: 0;">Cliente</h2>
+                <button style="background: none; border: none; color: #fff; cursor: pointer; font-size: 1.5rem;" onclick="document.getElementById('modal-cliente').classList.remove('open')">&times;</button>
+            </div>
+            <div class="detail-grid" id="modal-cli-grid">
+                <!-- Preenchido via JS -->
+            </div>
+            <div class="detail-history" id="modal-cli-history">
+                <h4>Documentos Vinculados</h4>
+                <div id="modal-cli-docs"></div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-primario" style="flex: 1;" onclick="editarClienteModal()">Salvar Alterações</button>
+                <button class="btn-restrito" style="flex: 1;" onclick="document.getElementById('modal-cliente').classList.remove('open')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+                <!-- VIEW 4: PROCESSOS KANBAN (Fase C) -->
+                <div id="view-processos" class="view-section">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 30px;">
+                        <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Gestão de Processos</h1>
+                        <p style="color: #ccc; margin: 0;">Quadro visual para acompanhar as etapas (Kanban).</p>
+                    </div>
+
+                    <div class="kanban-board">
+                        <!-- Coluna 1 -->
+                        <div class="kanban-col" data-status="fazer">
+                            <div class="kanban-col-header">
+                                A Fazer <span class="badge">2</span>
+                            </div>
+                            <div class="kanban-card" draggable="true">
+                                <div class="kanban-card-title">Ação Trabalhista</div>
+                                <div class="kanban-card-client">Cliente: João da Silva</div>
+                                <div class="kanban-card-tags"><span>Revisão Inicial</span></div>
+                            </div>
+                            <div class="kanban-card" draggable="true">
+                                <div class="kanban-card-title">Pensão Alimentícia</div>
+                                <div class="kanban-card-client">Cliente: Maria Souza</div>
+                                <div class="kanban-card-tags"><span>Agendado</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Coluna 2 -->
+                        <div class="kanban-col" data-status="andamento">
+                            <div class="kanban-col-header">
+                                Em Andamento <span class="badge">1</span>
+                            </div>
+                            <div class="kanban-card" draggable="true" style="border-left: 3px solid #ffcc00;">
+                                <div class="kanban-card-title">Danos Morais c/ Vivo</div>
+                                <div class="kanban-card-client">Cliente: Carlos Almeida</div>
+                                <div class="kanban-card-tags"><span>Aguardando Audiência</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Coluna 3 -->
+                        <div class="kanban-col" data-status="assinatura">
+                            <div class="kanban-col-header">
+                                Assinatura Pendente <span class="badge">1</span>
+                            </div>
+                            <div class="kanban-card" draggable="true" style="border-left: 3px solid #00c3ff;">
+                                <div class="kanban-card-title">Contrato de Honorários</div>
+                                <div class="kanban-card-client">Cliente: Mariana Silva</div>
+                                <div class="kanban-card-tags"><span>Enviado E-mail</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Coluna 4 -->
+                        <div class="kanban-col" data-status="concluido">
+                            <div class="kanban-col-header">
+                                Concluído <span class="badge">1</span>
+                            </div>
+                            <div class="kanban-card" draggable="true" style="border-left: 3px solid #2fd65e; opacity: 0.6;">
+                                <div class="kanban-card-title">Procuração Ad Judicia</div>
+                                <div class="kanban-card-client">Cliente: Roberto Costa</div>
+                                <div class="kanban-card-tags"><span style="color: #2fd65e;">Finalizado</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 5: ASSINATURAS (Fase C) -->
+                <div id="view-assinaturas" class="view-section">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 30px;">
+                        <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Central de Assinaturas</h1>
+                        <p style="color: #ccc; margin: 0;">Pipeline de documentos enviados para assinatura digital.</p>
+                    </div>
+
+                    <div class="hero-glass-container" style="max-width: 100%; text-align: left;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                                    <th style="padding: 10px;">Documento</th>
+                                    <th style="padding: 10px;">Signatário (Cliente)</th>
+                                    <th style="padding: 10px;">Data de Envio</th>
+                                    <th style="padding: 10px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Preenchido dinamicamente via carregarHistorico() -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- VIEW 6: AGENDA E PRAZOS (Fase E) -->
+                <div id="view-agenda" class="view-section">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 30px;">
+                        <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Agenda Judicial</h1>
+                        <p style="color: #ccc; margin: 0;">Prazos fatais e audiências agendadas da semana.</p>
+                    </div>
+                    
+                    <div class="agenda-grid">
+                        <div class="agenda-card" style="border-left: 4px solid #ff4d4d;">
+                            <div class="agenda-date">
+                                <span class="agenda-date-day">Hoje</span>
+                                <span class="agenda-date-month">14:00</span>
+                            </div>
+                            <div class="agenda-info">
+                                <h4 style="color: #ff4d4d;">Audiência de Conciliação</h4>
+                                <p>Cliente: João da Silva</p>
+                                <p>Fórum Trabalhista - 3ª Vara</p>
+                            </div>
+                        </div>
+
+                        <div class="agenda-card" style="border-left: 4px solid #ffcc00;">
+                            <div class="agenda-date">
+                                <span class="agenda-date-day">24</span>
+                                <span class="agenda-date-month">Abr</span>
+                            </div>
+                            <div class="agenda-info">
+                                <h4>Prazo Final: Contestação</h4>
+                                <p>Cliente: Carlos Almeida</p>
+                                <p>Ação de Danos Morais c/ Vivo</p>
+                            </div>
+                        </div>
+
+                        <div class="agenda-card">
+                            <div class="agenda-date">
+                                <span class="agenda-date-day">28</span>
+                                <span class="agenda-date-month">Abr</span>
+                            </div>
+                            <div class="agenda-info">
+                                <h4>Reunião Fechamento</h4>
+                                <p>Cliente: Empresa XPTO</p>
+                                <p>Assinatura de Contratos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 7: FINANCEIRO (Fase K) -->
+                <div id="view-financeiro" class="view-section">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Faturamento</h1>
+                            <p style="color: #ccc; margin: 0;">Controle de honorários e cobranças recorrentes.</p>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-primario" onclick="abrirModalFatura()">+ Nova Fatura</button>
+                            <button class="btn-restrito" style="padding: 10px 15px;" onclick="document.getElementById('modal-pix').style.display='flex'">Gerar Pix</button>
+                        </div>
+                    </div>
+
+                    <div class="kpi-row">
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background: rgba(47,214,94,0.15);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2fd65e" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                            </div>
+                            <div class="kpi-number" style="color: #2fd65e;" id="kpi-receita">R$ 0</div>
+                            <div class="kpi-label">Receita (Pago)</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background: rgba(255,204,0,0.15);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffcc00" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                            </div>
+                            <div class="kpi-number" style="color: #ffcc00;" id="kpi-a-receber">R$ 0</div>
+                            <div class="kpi-label">A Receber</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background: rgba(255,77,77,0.15);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff4d4d" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>
+                            </div>
+                            <div class="kpi-number" style="color: #ff4d4d;" id="kpi-vencido">R$ 0</div>
+                            <div class="kpi-label">Vencido</div>
+                        </div>
+                    </div>
+
+                    <div class="hero-glass-container" style="max-width: 100%; text-align: left;">
+                        <h3 style="color: var(--cor-destaque); margin-bottom: 15px;">Faturas Recentes</h3>
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                                    <th style="padding: 10px;">Cliente</th>
+                                    <th style="padding: 10px;">Descrição</th>
+                                    <th style="padding: 10px;">Valor</th>
+                                    <th style="padding: 10px;">Vencimento</th>
+                                    <th style="padding: 10px;">Status</th>
+                                    <th style="padding: 10px; text-align: right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-faturas">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+    <!-- Modal Nova Fatura (Fase K) -->
+    <div class="modal-fatura" id="modal-nova-fatura">
+        <div class="modal-detalhes-inner" style="max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: var(--cor-destaque); margin: 0; font-family: var(--fonte-titulos);">Nova Fatura</h2>
+                <button style="background: none; border: none; color: #fff; cursor: pointer; font-size: 1.5rem;" onclick="document.getElementById('modal-nova-fatura').classList.remove('open')">&times;</button>
+            </div>
+            <form onsubmit="return false;" style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="form-grupo">
+                    <label>Cliente</label>
+                    <input type="text" id="fat-cliente" placeholder="Nome do cliente" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;">
+                </div>
+                <div class="form-grupo">
+                    <label>Descrição</label>
+                    <input type="text" id="fat-descricao" placeholder="Ex: Honorários Iniciais" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;">
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div class="form-grupo" style="flex: 1;">
+                        <label>Valor (R$)</label>
+                        <input type="number" id="fat-valor" placeholder="2500.00" step="0.01" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;">
+                    </div>
+                    <div class="form-grupo" style="flex: 1;">
+                        <label>Vencimento</label>
+                        <input type="date" id="fat-vencimento" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;">
+                    </div>
+                </div>
+                <button type="button" class="btn-primario" style="width: 100%; padding: 12px;" onclick="salvarFatura()">Salvar Fatura</button>
+            </form>
+        </div>
+    </div>
+
+                <!-- VIEW 8: GESTÃO DE EQUIPE (Fase F) -->
+                <div id="view-equipe" class="view-section">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Gestão de Equipe</h1>
+                            <p style="color: #ccc; margin: 0;">Administre permissões e colaboradores do escritório.</p>
+                        </div>
+                        <button class="btn-primario" onclick="alert('Funcionalidade de convite em breve!')">Convidar Membro</button>
+                    </div>
+
+                    <div class="hero-glass-container" style="max-width: 800px; text-align: left; padding: 20px;">
+                        <div class="equipe-list">
+                            <div class="equipe-member">
+                                <div class="equipe-info">
+                                    <div class="equipe-avatar">A</div>
+                                    <div>
+                                        <strong style="color: #fff; font-size: 1.1rem;">Dr. Advogado (Você)</strong>
+                                        <div style="font-size: 0.85rem; color: #aaa;">advogado@verum.com</div>
+                                    </div>
+                                </div>
+                                <div><span class="badge" style="background: var(--cor-destaque); color: #000;">Sócio-Administrador</span></div>
+                            </div>
+                            <div class="equipe-member">
+                                <div class="equipe-info">
+                                    <div class="equipe-avatar" style="background: #2fd65e;">M</div>
+                                    <div>
+                                        <strong style="color: #fff; font-size: 1.1rem;">Mariana Costa</strong>
+                                        <div style="font-size: 0.85rem; color: #aaa;">mariana@verum.com</div>
+                                    </div>
+                                </div>
+                                <div><span class="badge" style="background: rgba(255,255,255,0.1);">Advogada Júnior</span></div>
+                            </div>
+                            <div class="equipe-member">
+                                <div class="equipe-info">
+                                    <div class="equipe-avatar" style="background: #ffcc00;">P</div>
+                                    <div>
+                                        <strong style="color: #fff; font-size: 1.1rem;">Pedro Souza</strong>
+                                        <div style="font-size: 0.85rem; color: #aaa;">pedro.estagiario@verum.com</div>
+                                    </div>
+                                </div>
+                                <div><span class="badge" style="background: rgba(255,255,255,0.1);">Estagiário (Acesso Restrito)</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!-- Fim saas-content -->
+        </main> <!-- Fim saas-main -->
+    </div> <!-- Fim saas-layout -->
+
+    <!-- Modal de Cobrança PIX (Fase H) -->
+    <div id="modal-pix" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+        <div class="hero-glass-container" style="max-width: 450px; width: 90%; padding: 30px; text-align: center;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: var(--cor-destaque); margin: 0;">Cobrança Imediata</h2>
+                <button style="background: none; border: none; color: #fff; cursor: pointer; font-size: 1.5rem;" onclick="document.getElementById('modal-pix').style.display='none'">&times;</button>
+            </div>
+            
+            <div style="background: #fff; padding: 15px; border-radius: 8px; display: inline-block; margin-bottom: 20px;">
+                <!-- Mock QR Code -->
+                <svg width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="5" y="5" width="3" height="3"></rect><rect x="16" y="5" width="3" height="3"></rect><rect x="16" y="16" width="3" height="3"></rect><rect x="5" y="16" width="3" height="3"></rect></svg>
+            </div>
+            
+            <p style="color: #fff; font-size: 1.2rem; margin-bottom: 5px;">R$ 2.500,00</p>
+            <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">Honorários Advocatícios - Inicial</p>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" value="00020126580014br.gov.bcb.pix..." readonly style="flex: 1; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: #ccc; border-radius: 4px;">
+                <button class="btn-restrito" style="padding: 10px 15px;" onclick="Swal.fire({title: 'Copiado!', icon:'success', toast:true, showConfirmButton:false, timer:2000})">Copiar</button>
+            </div>
+
+            <button class="btn-primario" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;" onclick="alert('Redirecionando para o WhatsApp Web com a cobrança preresolvida...'); document.getElementById('modal-pix').style.display='none'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                Enviar por WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Assinatura Desenhada (Fase F) -->
+    <div id="modal-assinatura" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+        <div class="hero-glass-container" style="max-width: 500px; width: 90%; padding: 20px; text-align: center;">
+            <h2 style="color: var(--cor-destaque); margin-bottom: 10px;">Assinar Documento</h2>
+            <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">Use o mouse ou o dedo para assinar no quadro abaixo.</p>
+            <canvas id="signature-pad" class="signature-pad"></canvas>
+            <div style="display: flex; gap: 10px; justify-content: space-between; margin-top: 15px;">
+                <button type="button" class="btn-restrito" id="btn-limpar-assinatura">Limpar</button>
+                <button type="button" class="btn-primario" id="btn-salvar-assinatura">Anexar Assinatura</button>
+                <button type="button" class="btn-restrito" onclick="document.getElementById('modal-assinatura').style.display='none'" style="background: transparent; border: 1px solid #ccc; color: #ccc;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verum AI Chatbot (Fase F/G) -->
+    <div class="ai-fab" id="btn-ai-chat" title="Assistente IA Verum">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10a9.96 9.96 0 0 1-5.273-1.503L2 22l1.503-4.727A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2z"></path><path d="M8 12h.01"></path><path d="M12 12h.01"></path><path d="M16 12h.01"></path></svg>
+    </div>
+
+    <div class="ai-chat-window" id="ai-chat-window">
+        <div class="ai-chat-header">
+            <span>✨ Verum AI</span>
+            <button style="background: none; border: none; color: #fff; cursor: pointer; font-size: 1.2rem;" onclick="document.getElementById('ai-chat-window').classList.remove('open')">&times;</button>
+        </div>
+        <div class="ai-chat-body" id="ai-chat-body">
+            <div class="ai-msg system">
+                Olá! Sou o Verum AI, seu assistente jurídico virtual. Posso resumir casos, redigir cláusulas ou buscar jurisprudência. Como posso ajudar o escritório hoje?
+            </div>
+        </div>
+        <div class="ai-chat-input">
+            <input type="text" id="ai-input" placeholder="Digite seu prompt jurídico...">
+            <button id="btn-ai-send">Enviar</button>
+        </div>
+    </div>
+
+    <div id="modal-preview" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+        <div style="max-width: 700px; width: 95%; margin: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="color: var(--cor-destaque); margin: 0; font-family: var(--fonte-titulos);">Pré-visualização A4</h2>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn-restrito" style="padding: 6px 15px; font-size: 0.85rem; display: flex; align-items: center; gap: 5px;" onclick="window.print()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                        Baixar PDF
+                    </button>
+                    <button type="button" class="btn-restrito" style="padding: 6px 15px; font-size: 0.85rem; background: #000; color: #fff; border-color: rgba(255,255,255,0.3);" onclick="Swal.fire({title: 'Hash Gerada!', text: 'Documento notarizado em Blockchain. Hash: 0x8f7a93b...', icon: 'success'})">
+                        Blockchain
+                    </button>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="editor-toolbar" style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px;">
+                <button type="button" class="editor-btn" onclick="document.execCommand('bold', false, '')"><b>B</b></button>
+                <button type="button" class="editor-btn" onclick="document.execCommand('italic', false, '')"><i>I</i></button>
+                <button type="button" class="editor-btn" onclick="document.execCommand('underline', false, '')"><u>U</u></button>
+                <button type="button" class="editor-btn" onclick="document.execCommand('justifyLeft', false, '')">⇤</button>
+                <button type="button" class="editor-btn" onclick="document.execCommand('justifyCenter', false, '')">↔</button>
+                <button type="button" class="editor-btn" onclick="document.execCommand('justifyRight', false, '')">⇥</button>
+            </div>
+
+            <!-- Documento A4 -->
+            <div id="conteudo-preview" contenteditable="true" spellcheck="false" class="preview-a4">
+                <!-- Texto inserido via JS -->
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
+                <button type="button" class="btn-primario" id="btn-cancelar-preview" style="background: transparent; border: 1px solid #ccc; color: #ccc;">Cancelar</button>
+                <button type="button" class="btn-primario" id="btn-confirmar-geracao">Emitir Versão Final</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gaveta Lateral (Slide-Over Panel) -->
+    <div id="slide-detalhes" class="slide-over">
+        <div class="slide-over-header">
+            <h3>Detalhes do Processo</h3>
+            <button class="close-slide" id="btn-fechar-slide">&times;</button>
+        </div>
+        <div class="slide-over-body" id="conteudo-slide">
+            <!-- Injetado via JS -->
+        </div>
+    </div>
+
+    <script>
+        // CADEADO DE SEGURANÇA: Verifica se a pessoa passou pelo login
+        if (!sessionStorage.getItem('verum_token')) {
+            window.location.href = 'login.html';
+        }
+
+        // ==========================================
+        // SISTEMA DE NOTIFICAÇÕES GLOBAIS
+        // ==========================================
+        let notificacoesNaoLidas = 1;
+        const badgeNotif = document.getElementById('badge-notificacoes');
+        const dropdownNotif = document.getElementById('dropdown-notificacoes');
+        const listaNotif = document.getElementById('lista-notificacoes');
+
+        document.getElementById('btn-notificacoes').addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownNotif.classList.toggle('active');
+            if(notificacoesNaoLidas > 0) {
+                notificacoesNaoLidas = 0;
+                badgeNotif.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('click', () => {
+            dropdownNotif.classList.remove('active');
+        });
+
+        function adicionarNotificacao(texto) {
+            notificacoesNaoLidas++;
+            badgeNotif.innerText = notificacoesNaoLidas;
+            badgeNotif.style.display = 'flex';
+            const item = document.createElement('div');
+            item.className = 'notif-item';
+            item.innerHTML = `<strong>Atividade</strong><br>${texto}`;
+            listaNotif.prepend(item);
+        }
+        function carregarHistorico() {
+            try {
+                let documentos = JSON.parse(localStorage.getItem('verum_documentos'));
+                
+                // Seed inicial
+                if (!documentos || documentos.length === 0) {
+                    documentos = [
+                        { dataGeracao: new Date().toISOString(), nomeClienteFinal: "Carlos Almeida", tipoDocumento: "Procuração Ad Judicia", status: "assinado" },
+                        { dataGeracao: new Date().toISOString(), nomeClienteFinal: "Empresa XPTO", tipoDocumento: "Contrato de Honorários", status: "pendente" }
+                    ];
+                    localStorage.setItem('verum_documentos', JSON.stringify(documentos));
+                }
+
+                const tbody = document.getElementById('tabela-historico');
+                if(tbody) tbody.innerHTML = ''; 
+                
+                const kpiTotal = document.getElementById('kpi-total-docs');
+                if(kpiTotal) kpiTotal.innerText = documentos.length;
+
+                // Tabela de Visão Geral (Últimos Gerados)
+                documentos.slice().reverse().forEach(doc => {
+                    const dataFormatada = new Date(doc.dataGeracao).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+                    tr.innerHTML = `
+                        <td style="padding: 10px; color: #ccc;">${dataFormatada}</td>
+                        <td style="padding: 10px; font-weight: bold;">${doc.nomeClienteFinal}</td>
+                        <td style="padding: 10px; color: #aaa;">${doc.tipoDocumento}</td>
+                    `;
+                    if(tbody) tbody.appendChild(tr);
+                });
+
+                // Tabela de Central de Assinaturas
+                const tbodyAssinaturas = document.querySelector('#view-assinaturas tbody');
+                if(tbodyAssinaturas) {
+                    tbodyAssinaturas.innerHTML = '';
+                    const totalDocs = documentos.length;
+                    documentos.slice().reverse().forEach((doc, idxReverso) => {
+                        const idxOriginal = totalDocs - 1 - idxReverso; // Corrige o índice do array original
+                        const dataFormatada = new Date(doc.dataGeracao).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                        let badgeClass = doc.status === 'assinado' ? 'status-assinado' : 'status-pendente';
+                        let badgeText = doc.status === 'assinado' ? 'Assinado' : 'Aguardando';
+
+                        const tr = document.createElement('tr');
+                        tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+                        tr.innerHTML = `
+                            <td style="padding: 10px; font-weight: bold; color: #fff;">${doc.tipoDocumento.replace(/ /g, '_')}.pdf</td>
+                            <td style="padding: 10px; color: #aaa;">${doc.nomeClienteFinal}</td>
+                            <td style="padding: 10px; color: #aaa;">${dataFormatada}</td>
+                            <td style="padding: 10px;"><span class="status-badge ${badgeClass}" onclick="abrirEditorAssinatura(${idxOriginal})">${badgeText}</span></td>
+                        `;
+                        tbodyAssinaturas.appendChild(tr);
+                    });
+                }
+            } catch (erro) {
+                console.error("Erro ao carregar histórico:", erro);
+            }
+        }
+
+        // Função global para abrir o modal de assinatura do documento
+        function abrirEditorAssinatura(idx) {
+            let documentos = JSON.parse(localStorage.getItem('verum_documentos')) || [];
+            if(documentos[idx].status === 'pendente') {
+                document.getElementById('modal-assinatura').style.display = 'flex';
+                // Armazena no canvas qual index está sendo assinado
+                document.getElementById('modal-assinatura').setAttribute('data-doc-idx', idx);
+                if(typeof ctx !== 'undefined' && typeof canvas !== 'undefined') {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+        }
+
+        // carregarHistorico() agora é chamado diretamente no bloco da Fase J abaixo
+
+
+        let payloadGlobal = {};
+
+        // Ao submeter o form, APENAS abre o modal de preview
+        document.getElementById('form-documento').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            payloadGlobal = {
+                tenantId: 1,
+                nomeClienteFinal: document.getElementById('nome-cliente').value,
+                cpfCliente: document.getElementById('cpf-cliente').value,
+                acaoCliente: document.getElementById('acao-cliente').value,
+                tipoDocumento: document.getElementById('tipo-doc').options[document.getElementById('tipo-doc').selectedIndex].text
+            };
+
+            // Gera um Mock Dinâmico rico simulando o documento Word/PDF
+            let textoPreview = `<h3 style="text-align: center; text-transform: uppercase;">${payloadGlobal.tipoDocumento}</h3><br><br>`;
+            textoPreview += `<p><strong>OUTORGANTE:</strong> <strong>${payloadGlobal.nomeClienteFinal}</strong>, inscrito(a) no CPF sob o nº ${payloadGlobal.cpfCliente}, residente e domiciliado(a) em endereço constante na ficha de atendimento.</p><br>`;
+            textoPreview += `<p><strong>PODERES:</strong> Pelo presente instrumento, nomeia e constitui seus procuradores os advogados integrantes do escritório Verum Workspace, concedendo amplos poderes para o foro em geral, com a finalidade específica de propor e acompanhar até final decisão a <strong>${payloadGlobal.acaoCliente}</strong>.</p><br><br>`;
+            textoPreview += `<p style="text-align: center;">Local e data.</p><br><br><p style="text-align: center;">_____________________________________<br><strong>${payloadGlobal.nomeClienteFinal}</strong></p>`;
+
+            document.getElementById('conteudo-preview').innerHTML = textoPreview;
+            document.getElementById('modal-preview').style.display = 'flex';
+        });
+
+        // Fechar o modal
+        document.getElementById('btn-cancelar-preview').addEventListener('click', () => {
+            document.getElementById('modal-preview').style.display = 'none';
+        });
+
+        // Confirmar Geração Local (Local Storage)
+        document.getElementById('btn-confirmar-geracao').addEventListener('click', function () {
+            const btnConfirmar = this;
+            btnConfirmar.innerText = "Processando e Gerando...";
+            btnConfirmar.style.opacity = "0.7";
+            btnConfirmar.disabled = true;
+
+            setTimeout(() => {
+                try {
+                    let documentos = JSON.parse(localStorage.getItem('verum_documentos')) || [];
+                    documentos.push({
+                        dataGeracao: new Date().toISOString(),
+                        nomeClienteFinal: payloadGlobal.nomeClienteFinal,
+                        tipoDocumento: payloadGlobal.tipoDocumento,
+                        cpfCliente: payloadGlobal.cpfCliente,
+                        acaoCliente: payloadGlobal.acaoCliente,
+                        status: 'pendente' // Novo documento gerado aguarda assinatura
+                    });
+                    localStorage.setItem('verum_documentos', JSON.stringify(documentos));
+
+                    // Sucesso e fechar modal
+                    document.getElementById('modal-preview').style.display = 'none';
+                    btnConfirmar.innerText = "Confirmar e Emitir";
+                    btnConfirmar.style.opacity = "1";
+                    btnConfirmar.disabled = false;
+
+                    Swal.fire({
+                        title: 'Documento Emitido!',
+                        text: 'A peça foi salva no histórico e enviada para a central de Assinaturas.',
+                        icon: 'success',
+                        background: 'rgba(11, 19, 43, 0.9)',
+                        color: '#fff',
+                        confirmButtonColor: '#D4AF37'
+                    });
+
+                    // Notificação Global
+                    adicionarNotificacao(`Documento <b>${payloadGlobal.tipoDocumento}</b> emitido para ${payloadGlobal.nomeClienteFinal}.`);
+
+                    document.getElementById('form-documento').reset();
+                    carregarHistorico();
+
+                } catch (erro) {
+                    console.error("Falha ao salvar:", erro);
+                    btnConfirmar.innerText = "Confirmar e Emitir";
+                    btnConfirmar.style.opacity = "1";
+                    btnConfirmar.disabled = false;
+                }
+            }, 800); // Simulando delay de geração
+        });
+
+        // Navegação SPA (Single Page Application)
+        document.querySelectorAll('.saas-menu a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if(this.getAttribute('href') === 'index.html') return;
+                e.preventDefault();
+                document.querySelectorAll('.saas-menu a').forEach(l => l.classList.remove('ativo'));
+                this.classList.add('ativo');
+
+                document.querySelectorAll('.view-section').forEach(view => {
+                    view.classList.remove('view-active');
+                    view.classList.remove('view-transition');
+                });
+
+                const targetId = this.getAttribute('href').substring(1);
+                const targetView = document.getElementById('view-' + targetId) || document.getElementById('view-dashboard');
+                
+                targetView.classList.add('view-active');
+                // Força o reflow para a animação reiniciar
+                void targetView.offsetWidth;
+                targetView.classList.add('view-transition');
+            });
+        });
+
+        // ==========================================
+        // MINI-CRM LEGADO REMOVIDO (migrado para Fase J abaixo)
+        // ==========================================
+
+        // BARRA DE BUSCA GLOBAL
+        document.getElementById('input-busca-global').addEventListener('input', function() {
+            const termo = this.value.toLowerCase();
+            
+            // Busca no histórico (Dashboard)
+            const trsHist = document.querySelectorAll('#tabela-historico tr');
+            trsHist.forEach(tr => {
+                const text = tr.innerText.toLowerCase();
+                tr.style.display = text.includes(termo) ? '' : 'none';
+            });
+            
+            // Busca na tabela de clientes
+            const trsCli = document.querySelectorAll('#tabela-clientes tr');
+            trsCli.forEach(tr => {
+                const text = tr.innerText.toLowerCase();
+                tr.style.display = text.includes(termo) ? '' : 'none';
+            });
+        });
+
+        // Inicializa os dados ao abrir
+        carregarClientes();
+        carregarHistorico();
+
+        // Inicializa Gráficos com dados reais do localStorage (Fase K)
+        document.addEventListener('DOMContentLoaded', () => {
+            const documentos = JSON.parse(localStorage.getItem('verum_documentos')) || [];
+            
+            // Calcular docs por semana (últimas 4 semanas)
+            const agora = new Date();
+            const semanas = [0, 0, 0, 0];
+            documentos.forEach(doc => {
+                const data = new Date(doc.dataGeracao);
+                const diffDias = Math.floor((agora - data) / (1000 * 60 * 60 * 24));
+                const semana = Math.min(3, Math.floor(diffDias / 7));
+                semanas[3 - semana]++;
+            });
+
+            const ctx = document.getElementById('graficoDocumentos').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+                    datasets: [{
+                        label: 'Documentos Emitidos',
+                        data: semanas,
+                        backgroundColor: 'rgba(212, 175, 55, 0.7)',
+                        borderColor: 'rgba(212, 175, 55, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#fff' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#ccc' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#ccc' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de Pizza com dados reais
+            const tipos = {};
+            documentos.forEach(doc => {
+                const t = doc.tipoDocumento || 'Outros';
+                tipos[t] = (tipos[t] || 0) + 1;
+            });
+            const labels = Object.keys(tipos).length > 0 ? Object.keys(tipos) : ['Sem dados'];
+            const values = Object.values(tipos).length > 0 ? Object.values(tipos) : [1];
+            const cores = ['rgba(212, 175, 55, 0.8)', 'rgba(47, 214, 94, 0.8)', 'rgba(0, 195, 255, 0.8)', 'rgba(255, 77, 77, 0.8)', 'rgba(255, 255, 255, 0.5)'];
+
+            const ctxTipos = document.getElementById('graficoTipos').getContext('2d');
+            new Chart(ctxTipos, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: cores.slice(0, labels.length),
+                        borderColor: 'rgba(0,0,0,0.5)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        });
+
+        // ==========================================
+        // EXPORTAR DADOS (Fase D)
+        // ==========================================
+        window.exportarCSV = function() {
+            let csvContent = "data:text/csv;charset=utf-8,ID,Nome,CPF\n";
+            clientes.forEach(function(rowArray) {
+                let row = rowArray.id + "," + rowArray.nome + "," + rowArray.cpf;
+                csvContent += row + "\r\n";
+            });
+
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "voga_clientes_export.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            adicionarNotificacao('Base de Clientes exportada para CSV.');
+        };
+
+        // ==========================================
+        // KANBAN DRAG AND DROP & SLIDE-OVER (Fase D)
+        // ==========================================
+        let draggedCard = null;
+
+        document.querySelectorAll('.kanban-card').forEach(card => {
+            // Drag Start
+            card.addEventListener('dragstart', function(e) {
+                draggedCard = this;
+                setTimeout(() => this.style.opacity = '0.5', 0);
+            });
+
+            // Drag End
+            card.addEventListener('dragend', function() {
+                setTimeout(() => {
+                    this.style.opacity = '1';
+                    draggedCard = null;
+                }, 0);
+                document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over'));
+            });
+
+            // Clique para abrir Slide-Over (Painel de Detalhes)
+            card.addEventListener('click', function() {
+                const titulo = this.querySelector('.kanban-card-title').innerText;
+                const cliente = this.querySelector('.kanban-card-client').innerText;
+                
+                document.getElementById('conteudo-slide').innerHTML = `
+                    <h4 style="color: var(--cor-destaque); margin-bottom: 10px;">${titulo}</h4>
+                    <p>${cliente}</p>
+                    <hr style="border:0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
+                    <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 15px;">Histórico de Movimentação</p>
+                    <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                        <small>Hoje, 10:00 - Criado o processo</small><br>
+                        <small>Hoje, 14:30 - Movido para andamento</small>
+                    </div>
+                    <button class="btn-primario" style="width: 100%;" onclick="alert('Funcionalidade de edição em breve!')">Editar Processo</button>
+                `;
+                document.getElementById('slide-detalhes').classList.add('open');
+            });
+        });
+
+        // Eventos das Colunas para aceitar o Card
+        document.querySelectorAll('.kanban-col').forEach(col => {
+            col.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            });
+
+            col.addEventListener('dragleave', function() {
+                this.classList.remove('drag-over');
+            });
+
+            col.addEventListener('drop', function() {
+                this.classList.remove('drag-over');
+                if (draggedCard) {
+                    this.appendChild(draggedCard);
+                    
+                    // Se foi dropado na coluna concluído
+                    if(this.getAttribute('data-status') === 'concluido') {
+                        draggedCard.style.borderLeft = '3px solid #2fd65e';
+                        
+                        Swal.fire({
+                            title: 'Tarefa Concluída!',
+                            text: 'Processo movido com sucesso.',
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            background: 'rgba(40, 167, 69, 0.9)',
+                            color: '#fff'
+                        });
+                        
+                        adicionarNotificacao('Um processo foi marcado como Concluído!');
+                    }
+                    
+                    // Atualiza contadores (Visual)
+                    document.querySelectorAll('.kanban-col').forEach(c => {
+                        const count = c.querySelectorAll('.kanban-card').length;
+                        c.querySelector('.badge').innerText = count;
+                    });
+                }
+            });
+        });
+
+        // Fechar gaveta
+        document.getElementById('btn-fechar-slide').addEventListener('click', () => {
+            document.getElementById('slide-detalhes').classList.remove('open');
+        });
+
+        // ==========================================
+        // VERUM AI CHATBOT (Fase F/G)
+        // ==========================================
+        const btnAiChat = document.getElementById('btn-ai-chat');
+        const aiChatWindow = document.getElementById('ai-chat-window');
+        const btnAiSend = document.getElementById('btn-ai-send');
+        const aiInput = document.getElementById('ai-input');
+        const aiChatBody = document.getElementById('ai-chat-body');
+
+        btnAiChat.addEventListener('click', () => {
+            aiChatWindow.classList.toggle('open');
+        });
+
+        function sendAiMessage() {
+            const text = aiInput.value.trim();
+            if(!text) return;
+
+            // User Message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'ai-msg user';
+            userMsg.innerText = text;
+            aiChatBody.appendChild(userMsg);
+            aiInput.value = '';
+            
+            aiChatBody.scrollTop = aiChatBody.scrollHeight;
+
+            // Verum AI Typing Indicator
+            const typingMsg = document.createElement('div');
+            typingMsg.className = 'ai-msg system';
+            typingMsg.innerHTML = `<em>Verum AI está digitando...</em>`;
+            aiChatBody.appendChild(typingMsg);
+            aiChatBody.scrollTop = aiChatBody.scrollHeight;
+
+            // IA Response Logic
+            setTimeout(() => {
+                aiChatBody.removeChild(typingMsg); // Remove o "digitando..."
+                
+                const sysMsg = document.createElement('div');
+                sysMsg.className = 'ai-msg system';
+                
+                const lowerText = text.toLowerCase();
+                if(lowerText.includes('resumo') || lowerText.includes('resumir')) {
+                    sysMsg.innerHTML = `<strong>Resumo do Caso:</strong><br>Ação Trabalhista (Reclamante: Mariana Silva). O processo trata de vínculo empregatício não reconhecido e horas extras. A última movimentação foi a juntada da contestação pela Reclamada.`;
+                } else if (lowerText.includes('cláusula') || lowerText.includes('contrato')) {
+                    sysMsg.innerHTML = `Aqui está uma sugestão de <strong>Cláusula de Confidencialidade (NDA)</strong>:<br><br><em>"As Partes obrigam-se, por si, seus representantes e empregados, a manter o mais absoluto sigilo sobre quaisquer informações confidenciais que venham a ter acesso, sob pena de multa de R$ 50.000,00."</em><br><br>Deseja inserir no editor?`;
+                } else if (lowerText.includes('jurisprudência') || lowerText.includes('decisão')) {
+                    sysMsg.innerHTML = `<strong>Jurisprudência Encontrada (STJ):</strong><br><em>"A responsabilidade civil em casos de dano moral presumido (in re ipsa) independe da prova do prejuízo..."</em> (REsp 1.234.567/SP). Posso formatar a citação para você colar na peça.`;
+                } else {
+                    sysMsg.innerHTML = `Compreendi a sua solicitação. Posso aprofundar essa pesquisa em nossa base de dados ou redigir um documento com base nesse contexto. Qual prefere?`;
+                }
+
+                aiChatBody.appendChild(sysMsg);
+                aiChatBody.scrollTop = aiChatBody.scrollHeight;
+            }, 1500);
+        }
+
+        btnAiSend.addEventListener('click', sendAiMessage);
+        aiInput.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') sendAiMessage();
+        });
+
+        // ==========================================
+        // ASSINATURA EM TELA (Fase F)
+        // ==========================================
+        const canvas = document.getElementById('signature-pad');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+
+        // Ajustar tamanho do canvas
+        canvas.width = 460;
+        canvas.height = 200;
+
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e);
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        document.getElementById('btn-limpar-assinatura').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        document.getElementById('btn-salvar-assinatura').addEventListener('click', () => {
+            document.getElementById('modal-assinatura').style.display = 'none';
+            
+            // Alterar o status do documento para assinado
+            let idx = document.getElementById('modal-assinatura').getAttribute('data-doc-idx');
+            if(idx !== null) {
+                let documentos = JSON.parse(localStorage.getItem('verum_documentos')) || [];
+                if(documentos[idx]) {
+                    documentos[idx].status = 'assinado';
+                    localStorage.setItem('verum_documentos', JSON.stringify(documentos));
+                    carregarHistorico(); // Atualiza a tabela
+                }
+            }
+
+            Swal.fire({
+                title: 'Assinatura Anexada',
+                text: 'A rubrica foi digitalizada e embutida no documento com sucesso.',
+                icon: 'success',
+                background: 'rgba(11, 19, 43, 0.9)',
+                color: '#fff',
+                confirmButtonColor: '#D4AF37'
+            });
+            adicionarNotificacao('Assinatura digital inserida via tela de desenho.');
+        });
+
+        // Removendo listener fixo antigo já que a função agora é dinâmica via abrirEditorAssinatura()
+
+
+
+        // ==========================================
+        // FASE G: DARK/LIGHT MODE TOGGLE
+        // ==========================================
+        const btnThemeToggle = document.getElementById('btn-theme-toggle');
+        const iconTheme = document.getElementById('icon-theme');
+        
+        // Verifica preferência salva
+        if (localStorage.getItem('verum_theme') === 'light') {
+            document.body.classList.add('light-mode');
+            iconTheme.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+        }
+
+        btnThemeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            
+            if (document.body.classList.contains('light-mode')) {
+                localStorage.setItem('verum_theme', 'light');
+                // Ícone de Sol
+                iconTheme.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+            } else {
+                localStorage.setItem('verum_theme', 'dark');
+                // Ícone de Lua
+                iconTheme.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+            }
+        });
+
+        // ==========================================
+        // FASE G: TO-DO LIST LOGIC
+        // ==========================================
+        const btnAddTodo = document.getElementById('btn-add-todo');
+        const inputTodo = document.getElementById('todo-input');
+        const todoList = document.getElementById('todo-list');
+
+        function addTodo() {
+            const text = inputTodo.value.trim();
+            if (!text) return;
+
+            const label = document.createElement('label');
+            label.className = 'todo-item';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'todo-checkbox';
+            
+            const span = document.createElement('span');
+            span.className = 'todo-text';
+            span.innerText = text;
+            
+            label.appendChild(checkbox);
+            label.appendChild(span);
+            
+            todoList.appendChild(label);
+            inputTodo.value = '';
+            adicionarNotificacao('Nova tarefa adicionada à checklist diária.');
+        }
+
+        btnAddTodo.addEventListener('click', addTodo);
+        inputTodo.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') addTodo();
+        });
+
+        // ==========================================
+        // FASE J: PERSISTÊNCIA VIA LOCALSTORAGE (OPÇÃO A)
+        // ==========================================
+
+        // --- DECLARAÇÕES DE FUNÇÕES ---
+
+        function carregarClientes() {
+            let clientes = JSON.parse(localStorage.getItem('verum_clientes'));
+            
+            if (!clientes || clientes.length === 0) {
+                clientes = [
+                    { nome: "Carlos Almeida", cpf: "111.222.333-44", telefone: "(41) 99876-5432", email: "carlos@email.com", acao: "Ação Indenizatória" },
+                    { nome: "Empresa XPTO", cpf: "00.000.000/0001-00", telefone: "(41) 3333-4444", email: "contato@xpto.com", acao: "Defesa Trabalhista" }
+                ];
+                localStorage.setItem('verum_clientes', JSON.stringify(clientes));
+            }
+
+            const tbody = document.getElementById('tabela-clientes');
+            if(tbody) {
+                tbody.innerHTML = '';
+                clientes.forEach((cli, index) => {
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+                    tr.innerHTML = `
+                        <td style="padding: 10px; font-weight: bold; color: #fff;">${cli.nome}</td>
+                        <td style="padding: 10px; color: #aaa;">${cli.cpf}</td>
+                        <td style="padding: 10px; color: #aaa;">${cli.telefone || '—'}</td>
+                        <td style="padding: 10px; color: #aaa;">${cli.acao || '—'}</td>
+                        <td style="padding: 10px; text-align: right;">
+                            <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; margin-right: 5px;" onclick="abrirDetalhesCliente(${index})">Detalhes</button>
+                            <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; color: #ff4d4d; border-color: #ff4d4d;" onclick="removerCliente(${index})">Remover</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            const seletor = document.getElementById('seletor-cliente');
+            if (seletor) {
+                seletor.innerHTML = '<option value="">-- Selecione ou digite manualmente abaixo --</option>';
+                clientes.forEach(cli => {
+                    const opt = document.createElement('option');
+                    opt.value = JSON.stringify(cli);
+                    opt.innerText = `${cli.nome} (${cli.acao || 'Sem ação cadastrada'})`;
+                    seletor.appendChild(opt);
+                });
+            }
+        }
+
+        function removerCliente(index) {
+            let clientes = JSON.parse(localStorage.getItem('verum_clientes')) || [];
+            clientes.splice(index, 1);
+            localStorage.setItem('verum_clientes', JSON.stringify(clientes));
+            carregarClientes();
+            adicionarNotificacao('Cliente removido com sucesso.');
+        }
+
+        function initKanbanDragAndDrop() {
+            const cards = document.querySelectorAll('.kanban-card');
+            const cols = document.querySelectorAll('.kanban-col');
+            let draggedCard = null;
+
+            cards.forEach(card => {
+                card.addEventListener('dragstart', function() {
+                    draggedCard = this;
+                    setTimeout(() => this.style.opacity = '0.5', 0);
+                });
+                card.addEventListener('dragend', function() {
+                    setTimeout(() => {
+                        this.style.opacity = '1';
+                        draggedCard = null;
+                        atualizarContadoresKanban();
+                    }, 0);
+                });
+            });
+
+            cols.forEach(col => {
+                col.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.style.background = 'rgba(255,255,255,0.05)';
+                });
+                col.addEventListener('dragleave', function() {
+                    this.style.background = 'transparent';
+                });
+                col.addEventListener('drop', function() {
+                    this.style.background = 'transparent';
+                    if (draggedCard) {
+                        this.appendChild(draggedCard);
+                    }
+                });
+            });
+        }
+
+        function atualizarContadoresKanban() {
+            const cols = document.querySelectorAll('.kanban-col');
+            cols.forEach(col => {
+                const header = col.querySelector('.kanban-col-header');
+                const badge = header.querySelector('.badge');
+                const numCards = col.querySelectorAll('.kanban-card').length;
+                if(badge) badge.innerText = numCards;
+            });
+        }
+
+        // --- REGISTRAR LISTENERS ---
+
+        // Form CRM: Cadastro de Clientes (via onclick para evitar reload)
+        function salvarCliente() {
+            const nome = document.getElementById('novo-nome').value.trim();
+            const cpf = document.getElementById('novo-cpf').value.trim();
+            const telefone = document.getElementById('novo-telefone').value.trim();
+            const email = document.getElementById('novo-email').value.trim();
+            const acao = document.getElementById('novo-acao').value.trim();
+
+            if (!nome || !cpf) {
+                Swal.fire({
+                    title: 'Campos obrigatórios!',
+                    text: 'Preencha ao menos o nome e CPF do cliente.',
+                    icon: 'warning',
+                    background: 'rgba(11, 19, 43, 0.9)',
+                    color: '#fff',
+                    confirmButtonColor: '#D4AF37'
+                });
+                return;
+            }
+
+            let clientes = JSON.parse(localStorage.getItem('verum_clientes')) || [];
+            clientes.push({ nome, cpf, telefone, email, acao });
+            localStorage.setItem('verum_clientes', JSON.stringify(clientes));
+
+            document.getElementById('novo-nome').value = '';
+            document.getElementById('novo-cpf').value = '';
+            document.getElementById('novo-telefone').value = '';
+            document.getElementById('novo-email').value = '';
+            document.getElementById('novo-acao').value = '';
+            carregarClientes();
+            
+            Swal.fire({
+                title: 'Cliente Cadastrado!',
+                text: nome + ' foi salvo no CRM.',
+                icon: 'success',
+                background: 'rgba(11, 19, 43, 0.9)',
+                color: '#fff',
+                confirmButtonColor: '#D4AF37',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            adicionarNotificacao('Novo cliente cadastrado: <b>' + nome + '</b>');
+        }
+
+        // Filtro inline de clientes
+        window.filtrarClientes = function() {
+            const termo = (document.getElementById('filtro-clientes').value || '').toLowerCase();
+            const trs = document.querySelectorAll('#tabela-clientes tr');
+            trs.forEach(tr => {
+                tr.style.display = tr.innerText.toLowerCase().includes(termo) ? '' : 'none';
+            });
+        };
+
+        // Modal de Detalhes do Cliente
+        let clienteEditandoIdx = null;
+        window.abrirDetalhesCliente = function(index) {
+            const clientes = JSON.parse(localStorage.getItem('verum_clientes')) || [];
+            const cli = clientes[index];
+            if(!cli) return;
+            clienteEditandoIdx = index;
+
+            document.getElementById('modal-cli-nome').innerText = cli.nome;
+            document.getElementById('modal-cli-grid').innerHTML = `
+                <div class="detail-item"><label>Nome</label><input type="text" id="edit-cli-nome" value="${cli.nome}" style="width:100%;padding:8px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:#fff;"></div>
+                <div class="detail-item"><label>CPF</label><span>${cli.cpf}</span></div>
+                <div class="detail-item"><label>Telefone</label><input type="text" id="edit-cli-tel" value="${cli.telefone || ''}" style="width:100%;padding:8px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:#fff;"></div>
+                <div class="detail-item"><label>E-mail</label><input type="text" id="edit-cli-email" value="${cli.email || ''}" style="width:100%;padding:8px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:#fff;"></div>
+                <div class="detail-item" style="grid-column: span 2;"><label>Tipo de Ação</label><input type="text" id="edit-cli-acao" value="${cli.acao || ''}" style="width:100%;padding:8px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:#fff;"></div>
+            `;
+
+            // Documentos vinculados
+            const docs = JSON.parse(localStorage.getItem('verum_documentos')) || [];
+            const docsCliente = docs.filter(d => d.nomeClienteFinal === cli.nome);
+            const docsEl = document.getElementById('modal-cli-docs');
+            if(docsCliente.length > 0) {
+                docsEl.innerHTML = docsCliente.map(d => `
+                    <div class="detail-history-item">
+                        <span class="dot"></span>
+                        <span>${d.tipoDocumento} — <span class="status-badge ${d.status === 'assinado' ? 'status-assinado' : 'status-pendente'}">${d.status === 'assinado' ? 'Assinado' : 'Pendente'}</span></span>
+                    </div>
+                `).join('');
+            } else {
+                docsEl.innerHTML = '<p style="color: #6c757d; font-size: 0.85rem;">Nenhum documento emitido para este cliente.</p>';
+            }
+
+            document.getElementById('modal-cliente').classList.add('open');
+        };
+
+        window.editarClienteModal = function() {
+            if(clienteEditandoIdx === null) return;
+            let clientes = JSON.parse(localStorage.getItem('verum_clientes')) || [];
+            clientes[clienteEditandoIdx].nome = document.getElementById('edit-cli-nome').value.trim() || clientes[clienteEditandoIdx].nome;
+            clientes[clienteEditandoIdx].telefone = document.getElementById('edit-cli-tel').value.trim();
+            clientes[clienteEditandoIdx].email = document.getElementById('edit-cli-email').value.trim();
+            clientes[clienteEditandoIdx].acao = document.getElementById('edit-cli-acao').value.trim();
+            localStorage.setItem('verum_clientes', JSON.stringify(clientes));
+            carregarClientes();
+            document.getElementById('modal-cliente').classList.remove('open');
+            Swal.fire({ title: 'Atualizado!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, background: 'rgba(11,19,43,0.9)', color: '#fff' });
+        };
+
+        // ==========================================
+        // FASE K: FINANCEIRO CRUD
+        // ==========================================
+        function carregarFaturas() {
+            let faturas = JSON.parse(localStorage.getItem('verum_faturas'));
+            if (!faturas || faturas.length === 0) {
+                faturas = [
+                    { cliente: "Empresa XPTO", descricao: "Assessoria Mensal (Abr)", valor: 5000, vencimento: "2026-04-30", status: "pago" },
+                    { cliente: "Carlos Almeida", descricao: "Honorários Iniciais", valor: 3500, vencimento: "2026-04-15", status: "pendente" },
+                    { cliente: "Mariana Silva", descricao: "Contrato de Honorários", valor: 2500, vencimento: "2026-05-10", status: "pendente" }
+                ];
+                localStorage.setItem('verum_faturas', JSON.stringify(faturas));
+            }
+
+            const tbody = document.getElementById('tabela-faturas');
+            if(tbody) {
+                tbody.innerHTML = '';
+                const hoje = new Date();
+                faturas.forEach((fat, idx) => {
+                    const venc = new Date(fat.vencimento);
+                    const vencido = fat.status === 'pendente' && venc < hoje;
+                    let badgeClass = fat.status === 'pago' ? 'status-assinado' : (vencido ? 'status-pendente' : 'status-pendente');
+                    let badgeText = fat.status === 'pago' ? 'Pago' : (vencido ? 'Vencido' : 'A vencer');
+
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+                    tr.innerHTML = `
+                        <td style="padding: 10px; font-weight: bold; color: #fff;">${fat.cliente}</td>
+                        <td style="padding: 10px; color: #aaa;">${fat.descricao}</td>
+                        <td style="padding: 10px; color: #fff;">R$ ${fat.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                        <td style="padding: 10px; color: #aaa;">${new Date(fat.vencimento).toLocaleDateString('pt-BR')}</td>
+                        <td style="padding: 10px;"><span class="status-badge ${badgeClass}">${badgeText}</span></td>
+                        <td style="padding: 10px; text-align: right;">
+                            ${fat.status !== 'pago' ? `<button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; color: #2fd65e; border-color: #2fd65e; margin-right: 5px;" onclick="marcarPago(${idx})">Pagar</button>` : ''}
+                            <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; color: #ff4d4d; border-color: #ff4d4d;" onclick="removerFatura(${idx})">×</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Atualizar KPIs Financeiros
+            const pago = faturas.filter(f => f.status === 'pago').reduce((s, f) => s + f.valor, 0);
+            const pendente = faturas.filter(f => f.status === 'pendente').reduce((s, f) => s + f.valor, 0);
+            const hoje2 = new Date();
+            const vencido = faturas.filter(f => f.status === 'pendente' && new Date(f.vencimento) < hoje2).reduce((s, f) => s + f.valor, 0);
+
+            const elR = document.getElementById('kpi-receita');
+            const elA = document.getElementById('kpi-a-receber');
+            const elV = document.getElementById('kpi-vencido');
+            if(elR) elR.innerText = 'R$ ' + pago.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+            if(elA) elA.innerText = 'R$ ' + pendente.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+            if(elV) elV.innerText = 'R$ ' + vencido.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+        }
+
+        window.marcarPago = function(idx) {
+            let faturas = JSON.parse(localStorage.getItem('verum_faturas')) || [];
+            if(faturas[idx]) { faturas[idx].status = 'pago'; }
+            localStorage.setItem('verum_faturas', JSON.stringify(faturas));
+            carregarFaturas();
+            adicionarNotificacao('Fatura marcada como Paga!');
+        };
+
+        window.removerFatura = function(idx) {
+            let faturas = JSON.parse(localStorage.getItem('verum_faturas')) || [];
+            faturas.splice(idx, 1);
+            localStorage.setItem('verum_faturas', JSON.stringify(faturas));
+            carregarFaturas();
+        };
+
+        window.abrirModalFatura = function() {
+            document.getElementById('modal-nova-fatura').classList.add('open');
+        };
+
+        window.salvarFatura = function() {
+            const cli = document.getElementById('fat-cliente').value.trim();
+            const desc = document.getElementById('fat-descricao').value.trim();
+            const val = parseFloat(document.getElementById('fat-valor').value);
+            const venc = document.getElementById('fat-vencimento').value;
+            if(!cli || !desc || !val || !venc) {
+                Swal.fire({ title: 'Preencha todos os campos!', icon: 'warning', background: 'rgba(11,19,43,0.9)', color: '#fff', confirmButtonColor: '#D4AF37' });
+                return;
+            }
+            let faturas = JSON.parse(localStorage.getItem('verum_faturas')) || [];
+            faturas.push({ cliente: cli, descricao: desc, valor: val, vencimento: venc, status: 'pendente' });
+            localStorage.setItem('verum_faturas', JSON.stringify(faturas));
+            document.getElementById('fat-cliente').value = '';
+            document.getElementById('fat-descricao').value = '';
+            document.getElementById('fat-valor').value = '';
+            document.getElementById('fat-vencimento').value = '';
+            document.getElementById('modal-nova-fatura').classList.remove('open');
+            carregarFaturas();
+            Swal.fire({ title: 'Fatura Criada!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 2500, background: 'rgba(11,19,43,0.9)', color: '#fff' });
+            adicionarNotificacao('Nova fatura: <b>' + desc + '</b> para ' + cli);
+        };
+
+        // Emissor Ágil: Auto-preenchimento ao selecionar cliente
+        const seletorCliente = document.getElementById('seletor-cliente');
+        if(seletorCliente) {
+            seletorCliente.addEventListener('change', function(e) {
+                if(!e.target.value) {
+                    document.getElementById('nome-cliente').value = "";
+                    document.getElementById('cpf-cliente').value = "";
+                    document.getElementById('acao-cliente').value = "";
+                    return;
+                }
+                const cli = JSON.parse(e.target.value);
+                document.getElementById('nome-cliente').value = cli.nome;
+                document.getElementById('cpf-cliente').value = cli.cpf;
+                document.getElementById('acao-cliente').value = cli.acao || "";
+            });
+        }
+
+        // --- INICIALIZAÇÃO (roda por último) ---
+        carregarClientes();
+        carregarHistorico();
+        carregarFaturas();
+        initKanbanDragAndDrop();
+
+        // ==========================================
+        // FASE K: SPLASH SCREEN
+        // ==========================================
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            if(splash) splash.classList.add('hidden');
+        }, 1400);
+
+        // ==========================================
+        // FASE K: SIDEBAR TOGGLE
+        // ==========================================
+        const sidebarEl = document.querySelector('.saas-sidebar');
+        const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+        
+        // Restaurar estado salvo
+        if(localStorage.getItem('verum_sidebar') === 'collapsed') {
+            sidebarEl.classList.add('collapsed');
+        }
+
+        btnToggleSidebar.addEventListener('click', () => {
+            sidebarEl.classList.toggle('collapsed');
+            localStorage.setItem('verum_sidebar', sidebarEl.classList.contains('collapsed') ? 'collapsed' : 'expanded');
+        });
+
+        // ==========================================
+        // FASE K: BREADCRUMBS
+        // ==========================================
+        const breadcrumbNames = {
+            'dashboard': 'Visão Geral',
+            'processos': 'Processos',
+            'radar': 'Radar Oficial',
+            'jurimetria': 'Jurimetria (IA)',
+            'drive': 'Verum Drive',
+            'agenda': 'Agenda Judicial',
+            'financeiro': 'Financeiro',
+            'emissor': 'Emissor Ágil',
+            'clientes': 'Meus Clientes',
+            'assinaturas': 'Assinaturas',
+            'videocall': 'Verum Meet',
+            'equipe': 'Equipe'
+        };
+
+        // Atualizar breadcrumb ao clicar no menu
+        document.querySelectorAll('.saas-menu a').forEach(link => {
+            link.addEventListener('click', function() {
+                const href = this.getAttribute('href');
+                if(href === 'index.html') return;
+                const key = href.substring(1);
+                const el = document.getElementById('breadcrumb-current');
+                if(el) el.innerText = breadcrumbNames[key] || key;
+            });
+        });
+
+        // ==========================================
+        // FASE K: KPIs DINÂMICOS
+        // ==========================================
+        function atualizarKPIs() {
+            const documentos = JSON.parse(localStorage.getItem('verum_documentos')) || [];
+            const clientes = JSON.parse(localStorage.getItem('verum_clientes')) || [];
+            
+            const total = documentos.length;
+            const assinados = documentos.filter(d => d.status === 'assinado').length;
+            const pendentes = documentos.filter(d => d.status === 'pendente').length;
+
+            const elTotal = document.getElementById('kpi-total-docs');
+            const elAssinados = document.getElementById('kpi-assinados');
+            const elPendentes = document.getElementById('kpi-pendentes');
+            const elClientes = document.getElementById('kpi-clientes');
+            const elTrend = document.getElementById('kpi-docs-trend');
+
+            if(elTotal) elTotal.innerText = total;
+            if(elAssinados) elAssinados.innerText = assinados;
+            if(elPendentes) elPendentes.innerText = pendentes;
+            if(elClientes) elClientes.innerText = clientes.length;
+            if(elTrend && total > 0) elTrend.innerHTML = '↑ Ativo';
+        }
+        atualizarKPIs();
+
+        // Atualizar KPIs após gerar documento
+        const origCarregarHistorico = carregarHistorico;
+        carregarHistorico = function() {
+            origCarregarHistorico();
+            atualizarKPIs();
+        };
+
+    </script>
+</body>
+
+</html>
