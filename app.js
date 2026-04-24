@@ -3,18 +3,14 @@
 ======================================================= */
 async function carregarDadosDoBanco() {
     try {
-        // Faz a requisição para a sua API rodando no C#
-        const resposta = await fetch('https://vogaapi.onrender.com/api/areas/1');
+        // Ajuste o final da URL para a rota que devolve os dados do escritório (ex: /api/tenant/1 ou /api/escritorio/1)
+        const resposta = await fetch('https://vogaapi.onrender.com/api/tenant/1');
 
         if (!resposta.ok) {
             throw new Error("Erro ao buscar o escritório");
         }
 
-        // Transforma o retorno em JSON
-        const token = sessionStorage.getItem('verum_token');
         const dados = await resposta.json();
-
-        // Chama a função para pintar a tela com os dados reais
         inicializarPlataforma(dados);
 
     } catch (erro) {
@@ -65,19 +61,14 @@ function inicializarPlataforma(dados) {
 }
 
 /* =======================================================
-   O GATILHO INICIAL (Corrigido)
+   BLOCO 4: CARREGAR ÁREAS DE ATUAÇÃO
 ======================================================= */
-// Assim que a página carregar, ele chama a API em vez da variável antiga
-document.addEventListener('DOMContentLoaded', () => {
-    carregarDadosDoBanco();
-});
-// NOVA FUNÇÃO: Carregar os cards de serviço dinamicamente
 async function carregarAreasAtuacao() {
     try {
-        const resposta = await fetch('http://localhost:5170/api/areas/1');
+        // TROCADO: O link do Render oficial no lugar do localhost
+        const resposta = await fetch('https://vogaapi.onrender.com/api/areas/1');
         const areas = await resposta.json();
 
-        // ATUALIZADO: Agora ele busca exatamente a div que você criou no HTML!
         const gridServicos = document.getElementById('container-areas-atuacao');
 
         if (gridServicos) {
@@ -85,8 +76,6 @@ async function carregarAreasAtuacao() {
 
             areas.forEach(area => {
                 const card = document.createElement('div');
-                // Se no seu style.css a classe for "card-glass", mantenha essa. 
-                // Se for outra, é só trocar aqui:
                 card.className = 'card-glass';
                 card.innerHTML = `
                     <h3 style="color: var(--cor-destaque); margin-bottom: 10px;">${area.titulo}</h3>
@@ -99,11 +88,15 @@ async function carregarAreasAtuacao() {
         console.error("Erro ao carregar serviços:", erro);
     }
 }
-// Chame essa função logo abaixo de onde você chama o carregarDadosDoBanco()
+
+/* =======================================================
+   O GATILHO INICIAL (Unificado)
+======================================================= */
+// Unificamos as chamadas num único bloco para o código ficar "Clean"
 document.addEventListener('DOMContentLoaded', () => {
     carregarDadosDoBanco();
-    carregarAreasAtuacao(); // <--- CHAME AQUI
-    initScrollAnimations(); // <--- CHAME AQUI
+    carregarAreasAtuacao();
+    initScrollAnimations();
 });
 
 /* =======================================================
@@ -115,7 +108,6 @@ function initScrollAnimations() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('active');
-                // Opcional: observer.unobserve(entry.target); se quiser animar só 1 vez
             }
         });
     }, { threshold: 0.1 });
