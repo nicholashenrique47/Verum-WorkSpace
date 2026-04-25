@@ -153,38 +153,31 @@ document.getElementById('btn-confirmar-geracao').addEventListener('click', async
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(novoDocumento)
         });
-
         if (!resposta.ok) throw new Error("Erro ao gerar documento.");
 
-        // A API devolveu um Ficheiro (Blob), não um JSON! Vamos fazer o download:
+        // === NOVA LÓGICA DE DOWNLOAD À PROVA DE FALHAS ===
         const blob = await resposta.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
+
+        // 1. Removemos o 'display: none' (alguns navegadores bloqueiam cliques invisíveis)
         a.href = url;
-        // Pega o nome do ficheiro que a API C# gerou nos headers, ou cria um nome padrão
-        a.download = `${novoDocumento.tipoDocumento.replace(/ /g, "_")}_${novoDocumento.nomeClienteFinal.replace(/ /g, "")}.doc`;
+
+        // 2. Colocamos um nome limpo e fixo temporariamente para evitar erros de caracteres
+        a.download = "Documento_Verum.doc";
+
         document.body.appendChild(a);
+
+        // 3. Força o clique diretamente
         a.click();
-        a.remove();
+
+        // 4. Remove da tela imediatamente após o clique
+        document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
+        // =================================================
 
         // Sucesso e fechar modal
         document.getElementById('modal-preview').style.display = 'none';
-
-        Swal.fire({
-            title: 'Documento Emitido!',
-            text: 'A peça foi salva no histórico e o download do Word foi iniciado.',
-            icon: 'success',
-            background: 'rgba(11, 19, 43, 0.9)',
-            color: '#fff',
-            confirmButtonColor: '#D4AF37'
-        });
-
-        adicionarNotificacao(`Documento <b>${payloadGlobal.tipoDocumento}</b> emitido para ${payloadGlobal.nomeClienteFinal}.`);
-        document.getElementById('form-documento').reset();
-
-        // Atualiza a tabela com o novo histórico
-        carregarHistorico();
 
     } catch (erro) {
         console.error("Falha ao salvar:", erro);
