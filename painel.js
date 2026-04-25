@@ -34,36 +34,32 @@ function adicionarNotificacao(texto) {
     item.innerHTML = `<strong>Atividade</strong><br>${texto}`;
     listaNotif.prepend(item);
 }
-function carregarHistorico() {
+async function carregarHistorico() {
     try {
-        let documentos = JSON.parse(localStorage.getItem('verum_documentos'));
+        // Busca o histórico real da API C#
+        const resposta = await fetch('https://vogaapi.onrender.com/api/documentos/1');
+        if (!resposta.ok) throw new Error("Erro ao buscar histórico");
 
-        // Seed inicial
-        if (!documentos || documentos.length === 0) {
-            documentos = [
-                { dataGeracao: new Date().toISOString(), nomeClienteFinal: "Carlos Almeida", tipoDocumento: "Procuração Ad Judicia", status: "assinado" },
-                { dataGeracao: new Date().toISOString(), nomeClienteFinal: "Empresa XPTO", tipoDocumento: "Contrato de Honorários", status: "pendente" }
-            ];
-            localStorage.setItem('verum_documentos', JSON.stringify(documentos));
-        }
+        const documentos = await resposta.json();
 
         const tbody = document.getElementById('tabela-historico');
         if (tbody) tbody.innerHTML = '';
 
+        // Atualiza o KPI de Documentos Gerados
         const kpiTotal = document.getElementById('kpi-total-docs');
         if (kpiTotal) kpiTotal.innerText = documentos.length;
 
-        // Tabela de Visão Geral (Últimos Gerados)
-        documentos.slice().reverse().forEach(doc => {
+        // Tabela de Visão Geral (Dashboard)
+        documentos.forEach(doc => {
             const dataFormatada = new Date(doc.dataGeracao).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
             const tr = document.createElement('tr');
             tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
             tr.innerHTML = `
-                        <td style="padding: 10px; color: #ccc;">${dataFormatada}</td>
-                        <td style="padding: 10px; font-weight: bold;">${doc.nomeClienteFinal}</td>
-                        <td style="padding: 10px; color: #aaa;">${doc.tipoDocumento}</td>
-                    `;
+                <td style="padding: 10px; color: #ccc;">${dataFormatada}</td>
+                <td style="padding: 10px; font-weight: bold;">${doc.nomeClienteFinal}</td>
+                <td style="padding: 10px; color: #aaa;">${doc.tipoDocumento}</td>
+            `;
             if (tbody) tbody.appendChild(tr);
         });
 
@@ -71,21 +67,17 @@ function carregarHistorico() {
         const tbodyAssinaturas = document.querySelector('#view-assinaturas tbody');
         if (tbodyAssinaturas) {
             tbodyAssinaturas.innerHTML = '';
-            const totalDocs = documentos.length;
-            documentos.slice().reverse().forEach((doc, idxReverso) => {
-                const idxOriginal = totalDocs - 1 - idxReverso; // Corrige o índice do array original
+            documentos.forEach((doc) => {
                 const dataFormatada = new Date(doc.dataGeracao).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                let badgeClass = doc.status === 'assinado' ? 'status-assinado' : 'status-pendente';
-                let badgeText = doc.status === 'assinado' ? 'Assinado' : 'Aguardando';
 
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
                 tr.innerHTML = `
-                            <td style="padding: 10px; font-weight: bold; color: #fff;">${doc.tipoDocumento.replace(/ /g, '_')}.pdf</td>
-                            <td style="padding: 10px; color: #aaa;">${doc.nomeClienteFinal}</td>
-                            <td style="padding: 10px; color: #aaa;">${dataFormatada}</td>
-                            <td style="padding: 10px;"><span class="status-badge ${badgeClass}" onclick="abrirEditorAssinatura(${idxOriginal})">${badgeText}</span></td>
-                        `;
+                    <td style="padding: 10px; font-weight: bold; color: #fff;">${doc.tipoDocumento.replace(/ /g, '_')}.doc</td>
+                    <td style="padding: 10px; color: #aaa;">${doc.nomeClienteFinal}</td>
+                    <td style="padding: 10px; color: #aaa;">${dataFormatada}</td>
+                    <td style="padding: 10px;"><span class="status-badge status-pendente" onclick="alert('Assinatura em breve!')">Aguardando</span></td>
+                `;
                 tbodyAssinaturas.appendChild(tr);
             });
         }
@@ -140,53 +132,68 @@ document.getElementById('btn-cancelar-preview').addEventListener('click', () => 
 });
 
 // Confirmar Geração Local (Local Storage)
-document.getElementById('btn-confirmar-geracao').addEventListener('click', function () {
+// Confirmar Geração Real (API C#)
+document.getElementById('btn-confirmar-geracao').addEventListener('click', async function () {
     const btnConfirmar = this;
     btnConfirmar.innerText = "Processando e Gerando...";
     btnConfirmar.style.opacity = "0.7";
     btnConfirmar.disabled = true;
 
-    setTimeout(() => {
-        try {
-            let documentos = JSON.parse(localStorage.getItem('verum_documentos')) || [];
-            documentos.push({
-                dataGeracao: new Date().toISOString(),
-                nomeClienteFinal: payloadGlobal.nomeClienteFinal,
-                tipoDocumento: payloadGlobal.tipoDocumento,
-                cpfCliente: payloadGlobal.cpfCliente,
-                acaoCliente: payloadGlobal.acaoCliente,
-                status: 'pendente' // Novo documento gerado aguarda assinatura
-            });
-            localStorage.setItem('verum_documentos', JSON.stringify(documentos));
+    // O molde exato que a classe DocumentoGerado.cs espera
+    const novoDocumento = {
+        tenantId: 1,
+        nomeClienteFinal: payloadGlobal.nomeClienteFinal,
+        tipoDocumento: payloadGlobal.tipoDocumento
+    };
 
-            // Sucesso e fechar modal
-            document.getElementById('modal-preview').style.display = 'none';
-            btnConfirmar.innerText = "Confirmar e Emitir";
-            btnConfirmar.style.opacity = "1";
-            btnConfirmar.disabled = false;
+    try {
+        // Envia para a API gerar o documento de Word
+        const resposta = await fetch('https://vogaapi.onrender.com/api/documentos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(novoDocumento)
+        });
 
-            Swal.fire({
-                title: 'Documento Emitido!',
-                text: 'A peça foi salva no histórico e enviada para a central de Assinaturas.',
-                icon: 'success',
-                background: 'rgba(11, 19, 43, 0.9)',
-                color: '#fff',
-                confirmButtonColor: '#D4AF37'
-            });
+        if (!resposta.ok) throw new Error("Erro ao gerar documento.");
 
-            // Notificação Global
-            adicionarNotificacao(`Documento <b>${payloadGlobal.tipoDocumento}</b> emitido para ${payloadGlobal.nomeClienteFinal}.`);
+        // A API devolveu um Ficheiro (Blob), não um JSON! Vamos fazer o download:
+        const blob = await resposta.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        // Pega o nome do ficheiro que a API C# gerou nos headers, ou cria um nome padrão
+        a.download = `${novoDocumento.tipoDocumento.replace(/ /g, "_")}_${novoDocumento.nomeClienteFinal.replace(/ /g, "")}.doc`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
 
-            document.getElementById('form-documento').reset();
-            carregarHistorico();
+        // Sucesso e fechar modal
+        document.getElementById('modal-preview').style.display = 'none';
 
-        } catch (erro) {
-            console.error("Falha ao salvar:", erro);
-            btnConfirmar.innerText = "Confirmar e Emitir";
-            btnConfirmar.style.opacity = "1";
-            btnConfirmar.disabled = false;
-        }
-    }, 800); // Simulando delay de geração
+        Swal.fire({
+            title: 'Documento Emitido!',
+            text: 'A peça foi salva no histórico e o download do Word foi iniciado.',
+            icon: 'success',
+            background: 'rgba(11, 19, 43, 0.9)',
+            color: '#fff',
+            confirmButtonColor: '#D4AF37'
+        });
+
+        adicionarNotificacao(`Documento <b>${payloadGlobal.tipoDocumento}</b> emitido para ${payloadGlobal.nomeClienteFinal}.`);
+        document.getElementById('form-documento').reset();
+
+        // Atualiza a tabela com o novo histórico
+        carregarHistorico();
+
+    } catch (erro) {
+        console.error("Falha ao salvar:", erro);
+        Swal.fire('Erro', 'Não foi possível gerar a peça.', 'error');
+    } finally {
+        btnConfirmar.innerText = "Emitir Versão Final";
+        btnConfirmar.style.opacity = "1";
+        btnConfirmar.disabled = false;
+    }
 });
 
 // Navegação SPA (Single Page Application)
