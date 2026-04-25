@@ -634,46 +634,52 @@ inputTodo.addEventListener('keypress', (e) => {
 
 // --- DECLARAÇÕES DE FUNÇÕES ---
 
-function carregarClientes() {
-    let clientes = JSON.parse(localStorage.getItem('verum_clientes'));
+// 1. Função para CARREGAR os clientes do Banco de Dados
+async function carregarClientes() {
+    try {
+        // Pede a lista de clientes do escritório 1 à tua API
+        const resposta = await fetch('https://vogaapi.onrender.com/api/clientes/1');
 
-    if (!clientes || clientes.length === 0) {
-        clientes = [
-            { nome: "Carlos Almeida", cpf: "111.222.333-44", telefone: "(41) 99876-5432", email: "carlos@email.com", acao: "Ação Indenizatória" },
-            { nome: "Empresa XPTO", cpf: "00.000.000/0001-00", telefone: "(41) 3333-4444", email: "contato@xpto.com", acao: "Defesa Trabalhista" }
-        ];
-        localStorage.setItem('verum_clientes', JSON.stringify(clientes));
-    }
+        if (!resposta.ok) {
+            throw new Error("Erro ao buscar clientes da API");
+        }
 
-    const tbody = document.getElementById('tabela-clientes');
-    if (tbody) {
-        tbody.innerHTML = '';
-        clientes.forEach((cli, index) => {
-            const tr = document.createElement('tr');
-            tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
-            tr.innerHTML = `
-                        <td style="padding: 10px; font-weight: bold; color: #fff;">${cli.nome}</td>
-                        <td style="padding: 10px; color: #aaa;">${cli.cpf}</td>
-                        <td style="padding: 10px; color: #aaa;">${cli.telefone || '—'}</td>
-                        <td style="padding: 10px; color: #aaa;">${cli.acao || '—'}</td>
-                        <td style="padding: 10px; text-align: right;">
-                            <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; margin-right: 5px;" onclick="abrirDetalhesCliente(${index})">Detalhes</button>
-                            <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; color: #ff4d4d; border-color: #ff4d4d;" onclick="removerCliente(${index})">Remover</button>
-                        </td>
-                    `;
-            tbody.appendChild(tr);
-        });
-    }
+        const clientes = await resposta.json();
 
-    const seletor = document.getElementById('seletor-cliente');
-    if (seletor) {
-        seletor.innerHTML = '<option value="">-- Selecione ou digite manualmente abaixo --</option>';
-        clientes.forEach(cli => {
-            const opt = document.createElement('option');
-            opt.value = JSON.stringify(cli);
-            opt.innerText = `${cli.nome} (${cli.acao || 'Sem ação cadastrada'})`;
-            seletor.appendChild(opt);
-        });
+        // Preenche a Tabela Visual
+        const tbody = document.getElementById('tabela-clientes');
+        if (tbody) {
+            tbody.innerHTML = '';
+            clientes.forEach((cli) => {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+                tr.innerHTML = `
+                    <td style="padding: 10px; font-weight: bold; color: #fff;">${cli.nome}</td>
+                    <td style="padding: 10px; color: #aaa;">${cli.cpf}</td>
+                    <td style="padding: 10px; color: #aaa;">${cli.telefone || '—'}</td>
+                    <td style="padding: 10px; color: #aaa;">${cli.acao || '—'}</td>
+                    <td style="padding: 10px; text-align: right;">
+                        <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; margin-right: 5px;" onclick="alert('Detalhes do ID: ${cli.id}')">Detalhes</button>
+                        <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; color: #ff4d4d; border-color: #ff4d4d;" onclick="alert('Remover ID: ${cli.id}')">Remover</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Preenche o Seletor do "Emissor Ágil"
+        const seletor = document.getElementById('seletor-cliente');
+        if (seletor) {
+            seletor.innerHTML = '<option value="">-- Selecione ou digite manualmente abaixo --</option>';
+            clientes.forEach(cli => {
+                const opt = document.createElement('option');
+                opt.value = JSON.stringify(cli);
+                opt.innerText = `${cli.nome} (${cli.acao || 'Sem ação cadastrada'})`;
+                seletor.appendChild(opt);
+            });
+        }
+    } catch (erro) {
+        console.error("Falha ao carregar os clientes do banco de dados:", erro);
     }
 }
 
@@ -734,7 +740,7 @@ function atualizarContadoresKanban() {
 // --- REGISTRAR LISTENERS ---
 
 // Form CRM: Cadastro de Clientes (via onclick para evitar reload)
-function salvarCliente() {
+async function salvarCliente() {
     const nome = document.getElementById('novo-nome').value.trim();
     const cpf = document.getElementById('novo-cpf').value.trim();
     const telefone = document.getElementById('novo-telefone').value.trim();
@@ -753,30 +759,55 @@ function salvarCliente() {
         return;
     }
 
-    let clientes = JSON.parse(localStorage.getItem('verum_clientes')) || [];
-    clientes.push({ nome, cpf, telefone, email, acao });
-    localStorage.setItem('verum_clientes', JSON.stringify(clientes));
+    // Molde exato que o teu C# (Cliente.cs) está à espera
+    const novoCliente = {
+        tenantId: 1,
+        nome: nome,
+        cpf: cpf,
+        telefone: telefone,
+        email: email,
+        acao: acao
+    };
 
-    document.getElementById('novo-nome').value = '';
-    document.getElementById('novo-cpf').value = '';
-    document.getElementById('novo-telefone').value = '';
-    document.getElementById('novo-email').value = '';
-    document.getElementById('novo-acao').value = '';
-    carregarClientes();
+    try {
+        // Envia os dados para a Nuvem!
+        const resposta = await fetch('https://vogaapi.onrender.com/api/clientes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(novoCliente)
+        });
 
-    Swal.fire({
-        title: 'Cliente Cadastrado!',
-        text: nome + ' foi salvo no CRM.',
-        icon: 'success',
-        background: 'rgba(11, 19, 43, 0.9)',
-        color: '#fff',
-        confirmButtonColor: '#D4AF37',
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000
-    });
-    adicionarNotificacao('Novo cliente cadastrado: <b>' + nome + '</b>');
+        if (resposta.ok) {
+            // Limpa o formulário
+            document.getElementById('novo-nome').value = '';
+            document.getElementById('novo-cpf').value = '';
+            document.getElementById('novo-telefone').value = '';
+            document.getElementById('novo-email').value = '';
+            document.getElementById('novo-acao').value = '';
+
+            // Atualiza a tabela chamando a API novamente
+            carregarClientes();
+
+            Swal.fire({
+                title: 'Cliente Cadastrado!',
+                text: nome + ' foi salvo na base de dados com sucesso.',
+                icon: 'success',
+                background: 'rgba(11, 19, 43, 0.9)',
+                color: '#fff',
+                confirmButtonColor: '#D4AF37',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            adicionarNotificacao('Novo cliente cadastrado no sistema: <b>' + nome + '</b>');
+        } else {
+            throw new Error("Falha ao salvar no servidor.");
+        }
+    } catch (erro) {
+        console.error("Erro na API:", erro);
+        Swal.fire('Erro', 'Não foi possível conectar ao servidor.', 'error');
+    }
 }
 
 // Filtro inline de clientes
