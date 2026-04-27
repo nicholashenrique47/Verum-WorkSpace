@@ -24,19 +24,16 @@ app.UseCors("PermitirTudo");
 
 // 2. RECRIANDO O BANCO E SEMEANDO OS DADOS NO MYSQL
 // 2. RECRIANDO O BANCO E SEMEANDO OS DADOS NO MYSQL
+// 2. RECRIANDO O BANCO E SEMEANDO OS DADOS NO MYSQL
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<VogaContext>();
 
-    // ADICIONE ESTA LINHA PARA FORÇAR O RESET DO BANCO:
-    db.Database.EnsureDeleted();
-
-    // Garante que o banco "verum_db" e TODAS as tabelas sejam criados no MySQL
-    db.Database.EnsureCreated();
+    // Comando inteligente que cria apenas as tabelas que faltam (Clientes, Prazos, etc)
+    db.Database.Migrate();
 
     // Semeando os dados se o banco estiver vazio
     if (!db.Tenants.Any())
-    // ... resto do código continua igual ...
     {
         var primeiroEscritorio = new Tenant
         {
@@ -48,9 +45,9 @@ using (var scope = app.Services.CreateScope())
         db.SaveChanges();
 
         db.AreasAtuacao.AddRange(
-            new AreaAtuacao { TenantId = primeiroEscritorio.Id, Titulo = "Direito Civil", Descricao = "Proteção do seu patrimônio e resolução de conflitos familiares." },
-            new AreaAtuacao { TenantId = primeiroEscritorio.Id, Titulo = "Direito Trabalhista", Descricao = "Garantia dos seus direitos nas relações de trabalho." },
-            new AreaAtuacao { TenantId = primeiroEscritorio.Id, Titulo = "Direito Empresarial", Descricao = "Assessoria jurídica completa para o crescimento do seu negócio." }
+            new AreaAtuacao { TenantId = primeiroEscritorio.Id, Titulo = "Direito Civil", Descricao = "Proteção patrimonial." },
+            new AreaAtuacao { TenantId = primeiroEscritorio.Id, Titulo = "Direito Trabalhista", Descricao = "Garantia de direitos." },
+            new AreaAtuacao { TenantId = primeiroEscritorio.Id, Titulo = "Direito Empresarial", Descricao = "Assessoria jurídica." }
         );
         db.SaveChanges();
     }
