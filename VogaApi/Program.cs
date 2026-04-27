@@ -26,11 +26,12 @@ app.UseCors("PermitirTudo");
 // 2. RECRIANDO O BANCO E SEMEANDO OS DADOS NO MYSQL
 // 2. RECRIANDO O BANCO E SEMEANDO OS DADOS NO MYSQL
 // 2. RECRIANDO O BANCO E SEMEANDO OS DADOS NO MYSQL
+// 2. RECRIANDO O BANCO E SEMEANDO OS DADOS NO MYSQL
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<VogaContext>();
 
-    // 1. MODO "TRATOR": Apaga as tabelas antigas para evitar que o Migrate dê erro
+    // 1. Limpa absolutamente tudo para não haver conflitos
     try
     {
         db.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS Lancamentos;");
@@ -43,10 +44,11 @@ using (var scope = app.Services.CreateScope())
     }
     catch { }
 
-    // 2. Agora sim, roda a migração num banco limpo, criando as tabelas novas!
-    db.Database.Migrate();
+    // 2. Como o banco está 100% vazio, este comando vai ler a tua pasta Models 
+    // e criar TODAS as gavetas automaticamente (Tenants, Clientes, Prazos, etc.)
+    db.Database.EnsureCreated();
 
-    // 3. Semeando os dados novamente
+    // 3. Semeando os dados
     if (!db.Tenants.Any())
     {
         var primeiroEscritorio = new Tenant
