@@ -1,0 +1,6 @@
+@VogaApi_HostAddress = http://localhost:5170
+
+GET {{VogaApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
