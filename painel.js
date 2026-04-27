@@ -243,7 +243,10 @@ carregarHistorico();
 // Inicializa Gráficos com dados reais do localStorage (Fase K)
 document.addEventListener('DOMContentLoaded', () => {
     const documentos = JSON.parse(localStorage.getItem('verum_documentos')) || [];
-
+    carregarClientes();
+    carregarHistorico();
+    carregarPrazos();      // Nova função para a Agenda
+    carregarFinanceiro();  // Nova função para o Financeiro
     // Calcular docs por semana (últimas 4 semanas)
     const agora = new Date();
     const semanas = [0, 0, 0, 0];
