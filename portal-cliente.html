@@ -103,14 +103,9 @@
                 </svg>
                 Ação Requerida
             </h3>
-            <p style="color: #ccc; margin-bottom: 15px;">Você possui um documento aguardando assinatura digital.</p>
-            <div
-                style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <strong style="color: #fff;">Contrato_Honorarios.pdf</strong><br>
-                    <small style="color: #aaa;">Enviado pelo escritório Verum Workspace</small>
-                </div>
-                <button class="btn-primario" onclick="assinarDocumento(this)">Assinar Agora</button>
+            <p style="color: #ccc; margin-bottom: 15px;">Documentos aguardando a sua assinatura digital.</p>
+            <div id="container-documentos-pendentes">
+                <!-- Documentos serão preenchidos dinamicamente -->
             </div>
         </div>
 
@@ -119,67 +114,135 @@
             <h3 style="color: var(--cor-destaque); margin-bottom: 20px;">Linha do Tempo
                 (Ação Trabalhista)</h3>
 
-            <div class="timeline">
-                <div class="timeline-item completed">
-                    <div class="timeline-content">
-                        <strong style="color: var(--cor-destaque);">Atendimento Inicial</strong>
-                        <p style="margin: 0; font-size: 0.85rem; color: #ccc;">Coleta de documentos e assinatura de
-                            procuração.</p>
-                        <small style="color: #888;">10 de Abril</small>
-                    </div>
-                </div>
-                <div class="timeline-item completed">
-                    <div class="timeline-content">
-                        <strong style="color: var(--cor-destaque);">Distribuição da Ação</strong>
-                        <p style="margin: 0; font-size: 0.85rem; color: #ccc;">Processo protocolado no TRT.</p>
-                        <small style="color: #888;">15 de Abril</small>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-content" style="border-color: rgba(255,255,255,0.05); opacity: 0.6;">
-                        <strong style="color: #fff;">Audiência de Conciliação</strong>
-                        <p style="margin: 0; font-size: 0.85rem; color: #ccc;">Aguardando data.</p>
-                    </div>
-                </div>
+            <div class="timeline" id="container-linha-tempo">
+                <!-- A linha do tempo será preenchida dinamicamente -->
             </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('form-login-cliente').addEventListener('submit', function (e) {
+        document.getElementById('form-login-cliente').addEventListener('submit', async function (e) {
             e.preventDefault();
-            const cpf = document.getElementById('cpf-login').value;
-            if (cpf.length > 3) {
-                // Mock de login
+            const btn = this.querySelector('button');
+            const cpfOriginal = document.getElementById('cpf-login').value;
+            const cpf = encodeURIComponent(cpfOriginal); // Garante que a URL seja válida
+            
+            if (cpf.length < 3) return;
+
+            btn.innerText = "Buscando processos...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`https://vogaapi.onrender.com/api/portal/cliente/${cpf}`);
+                
+                if (!res.ok) {
+                    Swal.fire('Não encontrado', 'CPF não localizado em nossa base de dados.', 'error');
+                    btn.innerText = "Acessar Meu Processo";
+                    btn.disabled = false;
+                    return;
+                }
+
+                const dados = await res.json();
+                
+                // Sucesso no Login
                 document.getElementById('tela-login').style.display = 'none';
                 document.getElementById('tela-dashboard').style.display = 'block';
-                // Busca nome se existir no localStorage do painel
-                const clientes = JSON.parse(localStorage.getItem('verum_clientes')) || [];
-                const cli = clientes.find(c => c.cpf === cpf);
-                if (cli) {
-                    document.getElementById('nome-cliente-logado').innerText = cli.nome;
+                document.getElementById('nome-cliente-logado').innerText = dados.cliente.nome;
+
+                // 1. Preencher Documentos Pendentes
+                const containerDocs = document.getElementById('container-documentos-pendentes');
+                containerDocs.innerHTML = '';
+                let docsPendentes = dados.documentos.filter(d => !d.assinado);
+                
+                if (docsPendentes.length === 0) {
+                    containerDocs.innerHTML = `<p style="color: #888; text-align: center; font-style: italic;">Não há documentos pendentes de assinatura.</p>`;
+                } else {
+                    docsPendentes.forEach(doc => {
+                        const div = document.createElement('div');
+                        div.style.cssText = "background: rgba(0,0,0,0.3); padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;";
+                        div.innerHTML = `
+                            <div>
+                                <strong style="color: #fff;">${doc.tipoDocumento}</strong><br>
+                                <small style="color: #aaa;">Enviado pelo escritório</small>
+                            </div>
+                            <button class="btn-primario" onclick="assinarDocumento(this, ${doc.id})">Assinar Agora</button>
+                        `;
+                        containerDocs.appendChild(div);
+                    });
                 }
+
+                // 2. Preencher Linha do Tempo (Prazos)
+                const timeline = document.getElementById('container-linha-tempo');
+                timeline.innerHTML = '';
+                
+                if (dados.prazos.length === 0) {
+                    timeline.innerHTML = `<p style="color: #888;">Nenhuma movimentação registrada no momento.</p>`;
+                } else {
+                    dados.prazos.forEach(prazo => {
+                        const dataFormatada = new Date(prazo.dataVencimento).toLocaleDateString('pt-BR');
+                        
+                        // Status styling
+                        let classCompleted = prazo.status === 'Concluido' ? 'completed' : '';
+                        let styleTitle = prazo.status === 'Concluido' ? 'color: var(--cor-destaque);' : 'color: #fff;';
+                        let styleBox = prazo.status === 'Pendente' ? 'border-color: rgba(255,255,255,0.05); opacity: 0.6;' : '';
+                        
+                        if (prazo.status === 'Atrasado') {
+                            styleTitle = 'color: #ff4d4d;';
+                            styleBox = 'border-color: rgba(255, 77, 77, 0.3);';
+                        }
+
+                        timeline.innerHTML += `
+                            <div class="timeline-item ${classCompleted}">
+                                <div class="timeline-content" style="${styleBox}">
+                                    <strong style="${styleTitle}">${prazo.titulo}</strong>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #ccc;">Status: ${prazo.status}</p>
+                                    <small style="color: #888;">${dataFormatada}</small>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+            } catch (erro) {
+                console.error(erro);
+                Swal.fire('Erro', 'Falha na conexão com o servidor.', 'error');
+                btn.innerText = "Acessar Meu Processo";
+                btn.disabled = false;
             }
         });
 
-        function assinarDocumento(btn) {
+        async function assinarDocumento(btn, docId) {
             btn.innerText = "Processando...";
-            setTimeout(() => {
-                Swal.fire({
-                    title: 'Documento Assinado!',
-                    text: 'Sua assinatura digital foi registrada com sucesso e validade jurídica.',
-                    icon: 'success',
-                    background: 'rgba(11, 19, 43, 0.9)',
-                    color: '#fff',
-                    confirmButtonColor: '#D4AF37'
-                }).then(() => {
-                    btn.parentElement.parentElement.style.opacity = '0.5';
-                    btn.innerText = "Assinado";
-                    btn.disabled = true;
-                    btn.style.background = "#2fd65e";
-                    btn.style.color = "#000";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`https://vogaapi.onrender.com/api/documentos/${docId}/assinar`, {
+                    method: 'PUT'
                 });
-            }, 1000);
+
+                if (res.ok) {
+                    Swal.fire({
+                        title: 'Documento Assinado!',
+                        text: 'Sua assinatura digital foi registrada com sucesso e validade jurídica.',
+                        icon: 'success',
+                        background: 'rgba(11, 19, 43, 0.9)',
+                        color: '#fff',
+                        confirmButtonColor: '#D4AF37'
+                    }).then(() => {
+                        btn.parentElement.style.opacity = '0.5';
+                        btn.innerText = "Assinado";
+                        btn.style.background = "#2fd65e";
+                        btn.style.color = "#000";
+                    });
+                } else {
+                    throw new Error("Falha na API");
+                }
+            } catch (erro) {
+                console.error(erro);
+                Swal.fire('Erro', 'Não foi possível registrar a assinatura.', 'error');
+                btn.innerText = "Assinar Agora";
+                btn.disabled = false;
+            }
         }
     </script>
 </body>

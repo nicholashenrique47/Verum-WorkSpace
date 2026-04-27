@@ -67,15 +67,40 @@ async function carregarHistorico() {
                 const dataFormatada = new Date(doc.dataGeracao).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+                const badgeAssinatura = doc.assinado ? '<span style="color: #2fd65e; font-size: 0.85rem;">✔ Assinado</span>' : '<span style="color: #ffcc00; font-size: 0.85rem;">⏳ Pendente</span>';
                 tr.innerHTML = `
                     <td style="padding: 15px; color: #fff;">${dataFormatada}</td>
                     <td style="padding: 15px; font-weight: bold; color: #D4AF37;">${doc.nomeClienteFinal}</td>
                     <td style="padding: 15px; color: #ccc;">${doc.tipoDocumento}</td>
+                    <td style="padding: 15px; text-align: center;">${badgeAssinatura}</td>
                     <td style="padding: 15px; text-align: right;">
                         <button class="btn-restrito" style="padding: 5px 12px;" onclick="window.print()">Visualizar</button>
                     </td>
                 `;
                 tbodyGeral.appendChild(tr);
+            });
+        }
+
+        // Tabela de Central de Assinaturas
+        const tbodyAssinaturas = document.querySelector('#view-assinaturas tbody');
+        if (tbodyAssinaturas) {
+            tbodyAssinaturas.innerHTML = '';
+            documentos.forEach((doc) => {
+                const dataFormatada = new Date(doc.dataGeracao).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+                
+                const statusHtml = doc.assinado 
+                    ? `<span style="color: #2fd65e; border: 1px solid #2fd65e; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">Assinado</span>` 
+                    : `<span style="color: var(--cor-destaque); border: 1px solid var(--cor-destaque); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">Pendente</span>`;
+
+                tr.innerHTML = `
+                    <td style="padding: 10px; font-weight: bold; color: #fff;">${doc.tipoDocumento.replace(/ /g, '_')}.doc</td>
+                    <td style="padding: 10px; color: #aaa;">${doc.nomeClienteFinal}</td>
+                    <td style="padding: 10px; color: #aaa;">${dataFormatada}</td>
+                    <td style="padding: 10px;">${statusHtml}</td>
+                `;
+                tbodyAssinaturas.appendChild(tr);
             });
         }
 

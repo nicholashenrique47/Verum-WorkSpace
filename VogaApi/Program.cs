@@ -221,6 +221,40 @@ app.MapDelete("/api/financeiro/{id}", async (int id, VogaContext db) =>
     return Results.Ok();
 });
 
+// 6. ROTAS DO PORTAL DO CLIENTE
+app.MapGet("/api/portal/cliente/{cpf}", async (string cpf, VogaContext db) =>
+{
+    var cliente = await db.Clientes.FirstOrDefaultAsync(c => c.Cpf == cpf);
+    if (cliente is null) return Results.NotFound();
+
+    var prazos = await db.Prazos
+        .Where(p => p.ClienteAssociado == cliente.Nome)
+        .OrderBy(p => p.DataVencimento)
+        .ToListAsync();
+
+    var documentos = await db.DocumentosGerados
+        .Where(d => d.NomeClienteFinal == cliente.Nome)
+        .OrderByDescending(d => d.DataGeracao)
+        .ToListAsync();
+
+    return Results.Ok(new
+    {
+        Cliente = cliente,
+        Prazos = prazos,
+        Documentos = documentos
+    });
+});
+
+app.MapPut("/api/documentos/{id}/assinar", async (int id, VogaContext db) =>
+{
+    var documento = await db.DocumentosGerados.FindAsync(id);
+    if (documento is null) return Results.NotFound();
+
+    documento.Assinado = true;
+    await db.SaveChangesAsync();
+    return Results.Ok(documento);
+});
+
 // 5. A ROTA DE SEGURANÇA
 app.MapPost("/api/login", (RequisicaoLogin login) =>
 {

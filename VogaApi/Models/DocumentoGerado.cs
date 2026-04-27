@@ -1,4 +1,4 @@
-﻿namespace VogaApi.Models;
+namespace VogaApi.Models;
 
 public class DocumentoGerado
 {
@@ -7,4 +7,5 @@ public class DocumentoGerado
     public string NomeClienteFinal { get; set; } = string.Empty;
     public string TipoDocumento { get; set; } = string.Empty;
     public DateTime DataGeracao { get; set; } = DateTime.UtcNow;
+    public bool Assinado { get; set; } = false;
 }
