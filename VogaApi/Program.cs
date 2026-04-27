@@ -27,7 +27,10 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<VogaContext>();
 
-    // Garante que o banco "verum_db" e as tabelas sejam criados no MySQL
+    // ADICIONE ESTA LINHA PARA FORÇAR O RESET DO BANCO:
+    db.Database.EnsureDeleted();
+
+    // Garante que o banco "verum_db" e TODAS as tabelas sejam criados no MySQL
     db.Database.EnsureCreated();
 
     // Semeando os dados se o banco estiver vazio
