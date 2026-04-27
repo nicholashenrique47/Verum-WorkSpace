@@ -646,7 +646,9 @@ async function carregarClientes() {
         }
 
         const clientes = await resposta.json();
-
+        // Atualiza o Número (KPI) no Dashboard
+        const kpiClientes = document.getElementById('kpi-clientes');
+        if (kpiClientes) kpiClientes.innerText = clientes.length;
         // Preenche a Tabela Visual
         const tbody = document.getElementById('tabela-clientes');
         if (tbody) {
@@ -1203,31 +1205,34 @@ function abrirModalPrazo() {
 
 async function carregarPrazos() {
     try {
-        const res = await fetch('https://vogaapi.onrender.com/api/prazos/1');
-        if (!res.ok) return;
-        const prazos = await res.json();
-        const tbody = document.getElementById('tabela-prazos');
-        if (!tbody) return;
+        const resposta = await fetch('https://vogaapi.onrender.com/api/prazos/1');
+        if (!resposta.ok) throw new Error("Erro na API de Prazos");
+        const prazos = await resposta.json();
 
-        tbody.innerHTML = '';
-        prazos.forEach(p => {
-            const dataFmt = new Date(p.dataVencimento).toLocaleDateString('pt-BR');
-            let corStatus = p.status === 'Concluido' ? '#2fd65e' : (p.status === 'Atrasado' ? '#ff4d4d' : '#ffcc00');
+        // 1. Atualiza o Número (KPI) de Processos/Prazos
+        const kpiProcessos = document.getElementById('kpi-processos');
+        if (kpiProcessos) kpiProcessos.innerText = prazos.length;
 
-            tbody.innerHTML += `
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <td style="padding: 10px; font-weight: bold; color: #fff;">${p.titulo}</td>
-                    <td style="padding: 10px; color: #aaa;">${dataFmt}</td>
-                    <td style="padding: 10px; color: #aaa;">${p.clienteAssociado || '—'}</td>
-                    <td style="padding: 10px;"><span style="color: ${corStatus}; border: 1px solid ${corStatus}; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">${p.status}</span></td>
-                    <td style="padding: 10px; text-align: right;">
-                        <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; margin-right: 5px; color: #2fd65e; border-color: #2fd65e;" onclick="concluirPrazo(${p.id})">✔</button>
-                        <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; color: #ff4d4d; border-color: #ff4d4d;" onclick="removerPrazo(${p.id})">Remover</button>
-                    </td>
-                </tr>
-            `;
-        });
-    } catch (e) { console.error(e); }
+        // 2. Preenche a Tabela da Agenda
+        const tbody = document.getElementById('tabela-agenda');
+        if (tbody) {
+            tbody.innerHTML = '';
+            prazos.forEach(prazo => {
+                const dataFormatada = new Date(prazo.dataVencimento).toLocaleDateString('pt-BR');
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+                tr.innerHTML = `
+                    <td style="padding: 10px; font-weight: bold; color: #fff;">${prazo.titulo}</td>
+                    <td style="padding: 10px; color: #aaa;">${prazo.clienteAssociado}</td>
+                    <td style="padding: 10px; color: #ccc;">${dataFormatada}</td>
+                    <td style="padding: 10px;"><span class="status-badge status-pendente">${prazo.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    } catch (erro) {
+        console.error("Erro ao carregar prazos:", erro);
+    }
 }
 
 async function salvarPrazo() {
@@ -1285,50 +1290,42 @@ function abrirModalLancamento() {
 
 async function carregarFinanceiro() {
     try {
-        const res = await fetch('https://vogaapi.onrender.com/api/financeiro/1');
-        if (!res.ok) return;
-        const lancamentos = await res.json();
+        const resposta = await fetch('https://vogaapi.onrender.com/api/financeiro/1');
+        if (!resposta.ok) throw new Error("Erro na API Financeira");
+        const lancamentos = await resposta.json();
+
+        // 1. Calcula a Receita Total e Atualiza o KPI
+        const kpiReceita = document.getElementById('kpi-receita');
+        if (kpiReceita) {
+            const totalReceita = lancamentos
+                .filter(l => l.tipo === "Entrada" || l.tipo === "Receita") // Soma apenas as entradas
+                .reduce((acc, l) => acc + l.valor, 0);
+            kpiReceita.innerText = "R$ " + totalReceita.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        }
+
+        // 2. Preenche a Tabela do Financeiro
         const tbody = document.getElementById('tabela-financeiro');
-        if (!tbody) return;
+        if (tbody) {
+            tbody.innerHTML = '';
+            lancamentos.forEach(lanc => {
+                const dataFormatada = new Date(lanc.dataPagamento).toLocaleDateString('pt-BR');
+                const corValor = (lanc.tipo === "Saída" || lanc.tipo === "Despesa") ? "#ff4d4d" : "#4caf50";
 
-        let totalReceitas = 0;
-        let totalDespesas = 0;
-
-        tbody.innerHTML = '';
-        lancamentos.forEach(l => {
-            const dataFmt = new Date(l.dataPagamento).toLocaleDateString('pt-BR');
-            const valorFmt = l.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-            let corLinha = l.tipo === 'Receita' ? '#2fd65e' : '#ff4d4d';
-            let statusBadge = l.pago ? `<span style="color: #ccc;">Pago</span>` : `<span style="color: var(--cor-destaque);">Pendente</span>`;
-
-            if (l.pago) {
-                if (l.tipo === 'Receita') totalReceitas += l.valor;
-                else totalDespesas += l.valor;
-            }
-
-            tbody.innerHTML += `
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <td style="padding: 10px; font-weight: bold; color: #fff;">${l.descricao}</td>
-                    <td style="padding: 10px; color: #aaa;">${dataFmt}</td>
-                    <td style="padding: 10px; color: ${corLinha}; font-weight: bold;">${valorFmt}</td>
-                    <td style="padding: 10px; color: #aaa;">${l.tipo}</td>
-                    <td style="padding: 10px;">${statusBadge}</td>
-                    <td style="padding: 10px; text-align: right;">
-                        ${!l.pago ? `<button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; margin-right: 5px; color: #2fd65e; border-color: #2fd65e;" onclick="pagarLancamento(${l.id})">Pagar</button>` : ''}
-                        <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; color: #ff4d4d; border-color: #ff4d4d;" onclick="removerLancamento(${l.id})">Excluir</button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        // Update KPIs
-        const saldo = totalReceitas - totalDespesas;
-        document.getElementById('kpi-receitas').innerText = totalReceitas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        document.getElementById('kpi-despesas').innerText = totalDespesas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        document.getElementById('kpi-saldo').innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-    } catch (e) { console.error(e); }
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+                tr.innerHTML = `
+                    <td style="padding: 10px; color: #ccc;">${dataFormatada}</td>
+                    <td style="padding: 10px; font-weight: bold; color: #fff;">${lanc.descricao}</td>
+                    <td style="padding: 10px; color: #aaa;">${lanc.categoria}</td>
+                    <td style="padding: 10px; font-weight: bold; color: ${corValor};">R$ ${lanc.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td style="padding: 10px; text-align: center;">${lanc.pago ? '✅' : '⏳'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    } catch (erro) {
+        console.error("Erro ao carregar financeiro:", erro);
+    }
 }
 
 async function salvarLancamento() {
