@@ -659,8 +659,8 @@ async function carregarClientes() {
                     <td style="padding: 10px; color: #aaa;">${cli.telefone || '—'}</td>
                     <td style="padding: 10px; color: #aaa;">${cli.acao || '—'}</td>
                     <td style="padding: 10px; text-align: right;">
-                        <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; margin-right: 5px;" onclick="alert('Detalhes do ID: ${cli.id}')">Detalhes</button>
-                        <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; color: #ff4d4d; border-color: #ff4d4d;" onclick="alert('Remover ID: ${cli.id}')">Remover</button>
+                        <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; margin-right: 5px;" onclick="abrirModalCliente(${cli.id})">Detalhes</button>
+                        <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; color: #ff4d4d; border-color: #ff4d4d;" onclick="removerCliente(${cli.id})">Remover</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -683,12 +683,134 @@ async function carregarClientes() {
     }
 }
 
-function removerCliente(index) {
-    let clientes = JSON.parse(localStorage.getItem('verum_clientes')) || [];
-    clientes.splice(index, 1);
-    localStorage.setItem('verum_clientes', JSON.stringify(clientes));
-    carregarClientes();
-    adicionarNotificacao('Cliente removido com sucesso.');
+async function removerCliente(id) {
+    // Alerta de Confirmação usando SweetAlert2
+    const confirmacao = await Swal.fire({
+        title: 'Tem certeza?',
+        text: "Essa ação não pode ser desfeita!",
+        icon: 'warning',
+        showCancelButton: true,
+        background: 'rgba(11, 19, 43, 0.9)',
+        color: '#fff',
+        confirmButtonColor: '#ff4d4d',
+        cancelButtonColor: '#555',
+        confirmButtonText: 'Sim, remover!',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (confirmacao.isConfirmed) {
+        try {
+            const resposta = await fetch(`https://vogaapi.onrender.com/api/clientes/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (!resposta.ok) {
+                throw new Error("Erro ao remover cliente na API");
+            }
+
+            carregarClientes();
+            
+            Swal.fire({
+                title: 'Removido!',
+                text: 'O cliente foi excluído da base de dados.',
+                icon: 'success',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                background: 'rgba(47, 214, 94, 0.9)',
+                color: '#fff'
+            });
+            adicionarNotificacao('Cliente excluído do sistema.');
+        } catch (erro) {
+            console.error(erro);
+            Swal.fire('Erro', 'Não foi possível remover o cliente.', 'error');
+        }
+    }
+}
+
+async function abrirModalCliente(id) {
+    try {
+        const resposta = await fetch('https://vogaapi.onrender.com/api/clientes/1');
+        const clientes = await resposta.json();
+        const cli = clientes.find(c => c.id === id);
+
+        if (cli) {
+            document.getElementById('modal-cli-nome').innerText = cli.nome;
+            document.getElementById('modal-cli-grid').innerHTML = `
+                <div class="form-grupo">
+                    <label>Nome</label>
+                    <input type="text" id="edit-cli-nome" value="${cli.nome}">
+                </div>
+                <div class="form-grupo">
+                    <label>CPF</label>
+                    <input type="text" id="edit-cli-cpf" value="${cli.cpf}">
+                </div>
+                <div class="form-grupo">
+                    <label>Telefone</label>
+                    <input type="text" id="edit-cli-telefone" value="${cli.telefone}">
+                </div>
+                <div class="form-grupo">
+                    <label>E-mail</label>
+                    <input type="text" id="edit-cli-email" value="${cli.email}">
+                </div>
+                <div class="form-grupo" style="grid-column: span 2;">
+                    <label>Ação Principal</label>
+                    <input type="text" id="edit-cli-acao" value="${cli.acao}">
+                </div>
+            `;
+            // Save ID for editing later
+            document.getElementById('modal-cliente').setAttribute('data-id', id);
+            document.getElementById('modal-cliente').classList.add('open');
+        }
+    } catch (e) {
+        console.error(e);
+        Swal.fire('Erro', 'Não foi possível carregar os detalhes do cliente.', 'error');
+    }
+}
+
+async function editarClienteModal() {
+    const id = document.getElementById('modal-cliente').getAttribute('data-id');
+    if (!id) return;
+
+    const clienteAtualizado = {
+        tenantId: 1, // Fixado como exemplo
+        nome: document.getElementById('edit-cli-nome').value.trim(),
+        cpf: document.getElementById('edit-cli-cpf').value.trim(),
+        telefone: document.getElementById('edit-cli-telefone').value.trim(),
+        email: document.getElementById('edit-cli-email').value.trim(),
+        acao: document.getElementById('edit-cli-acao').value.trim()
+    };
+
+    try {
+        const resposta = await fetch(`https://vogaapi.onrender.com/api/clientes/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(clienteAtualizado)
+        });
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao atualizar cliente na API");
+        }
+
+        document.getElementById('modal-cliente').classList.remove('open');
+        carregarClientes(); // Atualiza a tabela com o dado novo
+        
+        Swal.fire({
+            title: 'Cliente Atualizado!',
+            text: 'As informações foram alteradas com sucesso.',
+            icon: 'success',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            background: 'rgba(11, 19, 43, 0.9)',
+            color: '#fff'
+        });
+    } catch (erro) {
+        console.error(erro);
+        Swal.fire('Erro', 'Não foi possível salvar as alterações.', 'error');
+    }
 }
 
 function initKanbanDragAndDrop() {
@@ -1070,4 +1192,193 @@ carregarHistorico = function () {
     origCarregarHistorico();
     atualizarKPIs();
 };
+
+// ==========================================
+// FASE 2: AGENDA JUDICIAL (PRAZOS)
+// ==========================================
+function abrirModalPrazo() {
+    document.getElementById('modal-novo-prazo').style.display = 'flex';
+}
+
+async function carregarPrazos() {
+    try {
+        const res = await fetch('https://vogaapi.onrender.com/api/prazos/1');
+        if(!res.ok) return;
+        const prazos = await res.json();
+        const tbody = document.getElementById('tabela-prazos');
+        if(!tbody) return;
+        
+        tbody.innerHTML = '';
+        prazos.forEach(p => {
+            const dataFmt = new Date(p.dataVencimento).toLocaleDateString('pt-BR');
+            let corStatus = p.status === 'Concluido' ? '#2fd65e' : (p.status === 'Atrasado' ? '#ff4d4d' : '#ffcc00');
+            
+            tbody.innerHTML += `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 10px; font-weight: bold; color: #fff;">${p.titulo}</td>
+                    <td style="padding: 10px; color: #aaa;">${dataFmt}</td>
+                    <td style="padding: 10px; color: #aaa;">${p.clienteAssociado || '—'}</td>
+                    <td style="padding: 10px;"><span style="color: ${corStatus}; border: 1px solid ${corStatus}; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">${p.status}</span></td>
+                    <td style="padding: 10px; text-align: right;">
+                        <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; margin-right: 5px; color: #2fd65e; border-color: #2fd65e;" onclick="concluirPrazo(${p.id})">✔</button>
+                        <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; color: #ff4d4d; border-color: #ff4d4d;" onclick="removerPrazo(${p.id})">Remover</button>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch(e) { console.error(e); }
+}
+
+async function salvarPrazo() {
+    const titulo = document.getElementById('prazo-titulo').value;
+    const data = document.getElementById('prazo-data').value;
+    const cliente = document.getElementById('prazo-cliente').value;
+    
+    if(!titulo || !data) return Swal.fire('Aviso', 'Título e Data são obrigatórios', 'warning', {background: 'rgba(11, 19, 43, 0.9)', color: '#fff'});
+    
+    try {
+        await fetch('https://vogaapi.onrender.com/api/prazos', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ tenantId: 1, titulo, dataVencimento: data, clienteAssociado: cliente })
+        });
+        document.getElementById('modal-novo-prazo').style.display = 'none';
+        Swal.fire({title: 'Salvo!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: 'rgba(47, 214, 94, 0.9)', color: '#fff'});
+        carregarPrazos();
+    } catch(e) { console.error(e); }
+}
+
+async function concluirPrazo(id) {
+    try {
+        await fetch(`https://vogaapi.onrender.com/api/prazos/${id}/status`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ status: 'Concluido' })
+        });
+        carregarPrazos();
+        adicionarNotificacao('Prazo marcado como concluído.');
+    } catch(e) { console.error(e); }
+}
+
+async function removerPrazo(id) {
+    const confirmacao = await Swal.fire({
+        title: 'Remover prazo?',
+        icon: 'warning',
+        showCancelButton: true,
+        background: 'rgba(11, 19, 43, 0.9)', color: '#fff', confirmButtonColor: '#ff4d4d'
+    });
+    if (confirmacao.isConfirmed) {
+        try {
+            await fetch(`https://vogaapi.onrender.com/api/prazos/${id}`, { method: 'DELETE' });
+            carregarPrazos();
+        } catch(e) { console.error(e); }
+    }
+}
+
+// ==========================================
+// FASE 2: FINANCEIRO (LANÇAMENTOS)
+// ==========================================
+function abrirModalLancamento() {
+    document.getElementById('modal-novo-lancamento').style.display = 'flex';
+}
+
+async function carregarFinanceiro() {
+    try {
+        const res = await fetch('https://vogaapi.onrender.com/api/financeiro/1');
+        if(!res.ok) return;
+        const lancamentos = await res.json();
+        const tbody = document.getElementById('tabela-financeiro');
+        if(!tbody) return;
+        
+        let totalReceitas = 0;
+        let totalDespesas = 0;
+        
+        tbody.innerHTML = '';
+        lancamentos.forEach(l => {
+            const dataFmt = new Date(l.dataPagamento).toLocaleDateString('pt-BR');
+            const valorFmt = l.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            
+            let corLinha = l.tipo === 'Receita' ? '#2fd65e' : '#ff4d4d';
+            let statusBadge = l.pago ? `<span style="color: #ccc;">Pago</span>` : `<span style="color: var(--cor-destaque);">Pendente</span>`;
+            
+            if(l.pago) {
+                if(l.tipo === 'Receita') totalReceitas += l.valor;
+                else totalDespesas += l.valor;
+            }
+            
+            tbody.innerHTML += `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 10px; font-weight: bold; color: #fff;">${l.descricao}</td>
+                    <td style="padding: 10px; color: #aaa;">${dataFmt}</td>
+                    <td style="padding: 10px; color: ${corLinha}; font-weight: bold;">${valorFmt}</td>
+                    <td style="padding: 10px; color: #aaa;">${l.tipo}</td>
+                    <td style="padding: 10px;">${statusBadge}</td>
+                    <td style="padding: 10px; text-align: right;">
+                        ${!l.pago ? `<button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; margin-right: 5px; color: #2fd65e; border-color: #2fd65e;" onclick="pagarLancamento(${l.id})">Pagar</button>` : ''}
+                        <button class="btn-restrito" style="padding: 4px 10px; font-size: 0.8rem; color: #ff4d4d; border-color: #ff4d4d;" onclick="removerLancamento(${l.id})">Excluir</button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        // Update KPIs
+        const saldo = totalReceitas - totalDespesas;
+        document.getElementById('kpi-receitas').innerText = totalReceitas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.getElementById('kpi-despesas').innerText = totalDespesas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.getElementById('kpi-saldo').innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        
+    } catch(e) { console.error(e); }
+}
+
+async function salvarLancamento() {
+    const descricao = document.getElementById('lanc-descricao').value;
+    const valor = parseFloat(document.getElementById('lanc-valor').value);
+    const tipo = document.getElementById('lanc-tipo').value;
+    const data = document.getElementById('lanc-data').value;
+    
+    if(!descricao || !valor || !data) return Swal.fire('Aviso', 'Preencha todos os campos.', 'warning', {background: 'rgba(11, 19, 43, 0.9)', color: '#fff'});
+    
+    try {
+        await fetch('https://vogaapi.onrender.com/api/financeiro', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ tenantId: 1, descricao, valor, tipo, dataPagamento: data })
+        });
+        document.getElementById('modal-novo-lancamento').style.display = 'none';
+        Swal.fire({title: 'Lançamento Registrado!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: 'rgba(47, 214, 94, 0.9)', color: '#fff'});
+        carregarFinanceiro();
+    } catch(e) { console.error(e); }
+}
+
+async function pagarLancamento(id) {
+    try {
+        await fetch(`https://vogaapi.onrender.com/api/financeiro/${id}/pagar`, { method: 'PUT' });
+        carregarFinanceiro();
+        adicionarNotificacao('Lançamento baixado com sucesso no fluxo de caixa.');
+    } catch(e) { console.error(e); }
+}
+
+async function removerLancamento(id) {
+    const confirmacao = await Swal.fire({
+        title: 'Remover lançamento?',
+        icon: 'warning',
+        showCancelButton: true,
+        background: 'rgba(11, 19, 43, 0.9)', color: '#fff', confirmButtonColor: '#ff4d4d'
+    });
+    if (confirmacao.isConfirmed) {
+        try {
+            await fetch(`https://vogaapi.onrender.com/api/financeiro/${id}`, { method: 'DELETE' });
+            carregarFinanceiro();
+        } catch(e) { console.error(e); }
+    }
+}
+
+// Inicializar carregamentos na Fase 2
+document.addEventListener('DOMContentLoaded', () => {
+    // Timeout para não travar a UI inicial
+    setTimeout(() => {
+        carregarPrazos();
+        carregarFinanceiro();
+    }, 1000);
+});
 

@@ -1104,6 +1104,79 @@
                     </div>
                 </div>
 
+                <!-- VIEW: AGENDA JUDICIAL -->
+                <div id="view-agenda" class="view-section">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Agenda Judicial</h1>
+                            <p style="color: #ccc; margin: 0;">Controle de prazos e audiências do escritório.</p>
+                        </div>
+                        <button class="btn-primario" onclick="abrirModalPrazo()">+ Novo Prazo</button>
+                    </div>
+                    
+                    <div class="hero-glass-container" style="padding: 20px;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                                    <th style="padding: 10px;">Título</th>
+                                    <th style="padding: 10px;">Data Vencimento</th>
+                                    <th style="padding: 10px;">Cliente</th>
+                                    <th style="padding: 10px;">Status</th>
+                                    <th style="padding: 10px; text-align: right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-prazos">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- VIEW: FINANCEIRO -->
+                <div id="view-financeiro" class="view-section">
+                    <div class="header-painel" style="text-align: left; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Financeiro</h1>
+                            <p style="color: #ccc; margin: 0;">Fluxo de caixa e faturamento.</p>
+                        </div>
+                        <button class="btn-primario" onclick="abrirModalLancamento()">+ Novo Lançamento</button>
+                    </div>
+
+                    <!-- KPIs Financeiros -->
+                    <div class="kpi-row" style="margin-bottom: 30px;">
+                        <div class="kpi-card" style="border-color: rgba(47, 214, 94, 0.3);">
+                            <div class="kpi-number" style="color: #2fd65e;" id="kpi-receitas">R$ 0,00</div>
+                            <div class="kpi-label">Receitas Totais</div>
+                        </div>
+                        <div class="kpi-card" style="border-color: rgba(255, 77, 77, 0.3);">
+                            <div class="kpi-number" style="color: #ff4d4d;" id="kpi-despesas">R$ 0,00</div>
+                            <div class="kpi-label">Despesas Totais</div>
+                        </div>
+                        <div class="kpi-card" style="border-color: var(--cor-destaque);">
+                            <div class="kpi-number" style="color: var(--cor-destaque);" id="kpi-saldo">R$ 0,00</div>
+                            <div class="kpi-label">Saldo em Caixa</div>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-glass-container" style="padding: 20px;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                                    <th style="padding: 10px;">Descrição</th>
+                                    <th style="padding: 10px;">Data</th>
+                                    <th style="padding: 10px;">Valor</th>
+                                    <th style="padding: 10px;">Tipo</th>
+                                    <th style="padding: 10px;">Status</th>
+                                    <th style="padding: 10px; text-align: right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-financeiro">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div> <!-- Fim saas-content -->
         </main> <!-- Fim saas-main -->
     </div> <!-- Fim saas-layout -->
@@ -1270,6 +1343,63 @@
             <!-- Injetado via JS -->
         </div>
     </div>
+    <!-- Modal de Novo Prazo -->
+    <div id="modal-novo-prazo" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+        <div class="hero-glass-container" style="max-width: 500px; width: 90%; padding: 20px; text-align: left;">
+            <h2 style="color: var(--cor-destaque); margin-bottom: 20px;">Novo Prazo Judicial</h2>
+            <div class="form-grupo">
+                <label>Título</label>
+                <input type="text" id="prazo-titulo" placeholder="Ex: Audiência de Conciliação">
+            </div>
+            <div class="form-grupo">
+                <label>Data de Vencimento</label>
+                <input type="date" id="prazo-data" style="color-scheme: dark;">
+            </div>
+            <div class="form-grupo">
+                <label>Cliente Associado</label>
+                <input type="text" id="prazo-cliente" placeholder="Ex: Mariana Silva">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="button" class="btn-primario" onclick="salvarPrazo()">Salvar Prazo</button>
+                <button type="button" class="btn-restrito" onclick="document.getElementById('modal-novo-prazo').style.display='none'">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Novo Lançamento -->
+    <div id="modal-novo-lancamento" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+        <div class="hero-glass-container" style="max-width: 500px; width: 90%; padding: 20px; text-align: left;">
+            <h2 style="color: var(--cor-destaque); margin-bottom: 20px;">Novo Lançamento</h2>
+            <div style="display: flex; gap: 15px;">
+                <div class="form-grupo" style="flex: 2;">
+                    <label>Descrição</label>
+                    <input type="text" id="lanc-descricao" placeholder="Ex: Honorários Iniciais">
+                </div>
+                <div class="form-grupo" style="flex: 1;">
+                    <label>Valor (R$)</label>
+                    <input type="number" id="lanc-valor" placeholder="0.00" step="0.01">
+                </div>
+            </div>
+            <div style="display: flex; gap: 15px; margin-top: 10px;">
+                <div class="form-grupo" style="flex: 1;">
+                    <label>Tipo</label>
+                    <select id="lanc-tipo" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 6px;">
+                        <option value="Receita">Receita (Entrada)</option>
+                        <option value="Despesa">Despesa (Saída)</option>
+                    </select>
+                </div>
+                <div class="form-grupo" style="flex: 1;">
+                    <label>Data</label>
+                    <input type="date" id="lanc-data" style="color-scheme: dark;">
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="button" class="btn-primario" onclick="salvarLancamento()">Salvar Lançamento</button>
+                <button type="button" class="btn-restrito" onclick="document.getElementById('modal-novo-lancamento').style.display='none'">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="painel.js"></script>
 </body>
 
