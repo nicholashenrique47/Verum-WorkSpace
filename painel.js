@@ -42,50 +42,51 @@ async function carregarHistorico() {
 
         const documentos = await resposta.json();
 
-        const tbody = document.getElementById('tabela-historico');
-        if (tbody) tbody.innerHTML = '';
-
-        // Atualiza o KPI de Documentos Gerados
-        const kpiTotal = document.getElementById('kpi-total-docs');
-        if (kpiTotal) kpiTotal.innerText = documentos.length;
-
-        // Tabela de Visão Geral (Dashboard)
-        documentos.forEach(doc => {
-            const dataFormatada = new Date(doc.dataGeracao).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-            const tr = document.createElement('tr');
-            tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
-            tr.innerHTML = `
-                <td style="padding: 10px; color: #ccc;">${dataFormatada}</td>
-                <td style="padding: 10px; font-weight: bold;">${doc.nomeClienteFinal}</td>
-                <td style="padding: 10px; color: #aaa;">${doc.tipoDocumento}</td>
-            `;
-            if (tbody) tbody.appendChild(tr);
-        });
-
-        // Tabela de Central de Assinaturas
-        const tbodyAssinaturas = document.querySelector('#view-assinaturas tbody');
-        if (tbodyAssinaturas) {
-            tbodyAssinaturas.innerHTML = '';
-            documentos.forEach((doc) => {
+        // 1. ATUALIZA O DASHBOARD (Visão Geral)
+        const tbodyDashboard = document.getElementById('tabela-historico');
+        if (tbodyDashboard) {
+            tbodyDashboard.innerHTML = '';
+            documentos.slice(0, 5).forEach(doc => { // Mostra apenas os 5 últimos no dashboard
                 const dataFormatada = new Date(doc.dataGeracao).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
                 tr.innerHTML = `
-                    <td style="padding: 10px; font-weight: bold; color: #fff;">${doc.tipoDocumento.replace(/ /g, '_')}.doc</td>
-                    <td style="padding: 10px; color: #aaa;">${doc.nomeClienteFinal}</td>
-                    <td style="padding: 10px; color: #aaa;">${dataFormatada}</td>
-                    <td style="padding: 10px;"><span class="status-badge status-pendente" onclick="alert('Assinatura em breve!')">Aguardando</span></td>
+                    <td style="padding: 10px; color: #ccc;">${dataFormatada}</td>
+                    <td style="padding: 10px; font-weight: bold;">${doc.nomeClienteFinal}</td>
+                    <td style="padding: 10px; color: #aaa;">${doc.tipoDocumento}</td>
                 `;
-                tbodyAssinaturas.appendChild(tr);
+                tbodyDashboard.appendChild(tr);
             });
         }
+
+        // 2. ATUALIZA A ABA "DOCUMENTOS GERADOS" (Tabela Completa) - O QUE ESTAVA FALTANDO!
+        const tbodyGeral = document.getElementById('tabela-documentos-geral');
+        if (tbodyGeral) {
+            tbodyGeral.innerHTML = '';
+            documentos.forEach(doc => {
+                const dataFormatada = new Date(doc.dataGeracao).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+                tr.innerHTML = `
+                    <td style="padding: 15px; color: #fff;">${dataFormatada}</td>
+                    <td style="padding: 15px; font-weight: bold; color: #D4AF37;">${doc.nomeClienteFinal}</td>
+                    <td style="padding: 15px; color: #ccc;">${doc.tipoDocumento}</td>
+                    <td style="padding: 15px; text-align: right;">
+                        <button class="btn-restrito" style="padding: 5px 12px;" onclick="window.print()">Visualizar</button>
+                    </td>
+                `;
+                tbodyGeral.appendChild(tr);
+            });
+        }
+
+        // 3. ATUALIZA OS INDICADORES (KPIs)
+        const kpiTotal = document.getElementById('kpi-total-docs');
+        if (kpiTotal) kpiTotal.innerText = documentos.length;
+
     } catch (erro) {
         console.error("Erro ao carregar histórico:", erro);
     }
 }
-
 // Função global para abrir o modal de assinatura do documento
 function abrirEditorAssinatura(idx) {
     let documentos = JSON.parse(localStorage.getItem('verum_documentos')) || [];
@@ -178,7 +179,7 @@ document.getElementById('btn-confirmar-geracao').addEventListener('click', async
 
         // Sucesso e fechar modal
         document.getElementById('modal-preview').style.display = 'none';
-
+        await carregarHistorico();
     } catch (erro) {
         console.error("Falha ao salvar:", erro);
         Swal.fire('Erro', 'Não foi possível gerar a peça.', 'error');
@@ -709,7 +710,7 @@ async function removerCliente(id) {
             }
 
             carregarClientes();
-            
+
             Swal.fire({
                 title: 'Removido!',
                 text: 'O cliente foi excluído da base de dados.',
@@ -795,7 +796,7 @@ async function editarClienteModal() {
 
         document.getElementById('modal-cliente').classList.remove('open');
         carregarClientes(); // Atualiza a tabela com o dado novo
-        
+
         Swal.fire({
             title: 'Cliente Atualizado!',
             text: 'As informações foram alteradas com sucesso.',
@@ -1203,16 +1204,16 @@ function abrirModalPrazo() {
 async function carregarPrazos() {
     try {
         const res = await fetch('https://vogaapi.onrender.com/api/prazos/1');
-        if(!res.ok) return;
+        if (!res.ok) return;
         const prazos = await res.json();
         const tbody = document.getElementById('tabela-prazos');
-        if(!tbody) return;
-        
+        if (!tbody) return;
+
         tbody.innerHTML = '';
         prazos.forEach(p => {
             const dataFmt = new Date(p.dataVencimento).toLocaleDateString('pt-BR');
             let corStatus = p.status === 'Concluido' ? '#2fd65e' : (p.status === 'Atrasado' ? '#ff4d4d' : '#ffcc00');
-            
+
             tbody.innerHTML += `
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
                     <td style="padding: 10px; font-weight: bold; color: #fff;">${p.titulo}</td>
@@ -1226,38 +1227,38 @@ async function carregarPrazos() {
                 </tr>
             `;
         });
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
 }
 
 async function salvarPrazo() {
     const titulo = document.getElementById('prazo-titulo').value;
     const data = document.getElementById('prazo-data').value;
     const cliente = document.getElementById('prazo-cliente').value;
-    
-    if(!titulo || !data) return Swal.fire('Aviso', 'Título e Data são obrigatórios', 'warning', {background: 'rgba(11, 19, 43, 0.9)', color: '#fff'});
-    
+
+    if (!titulo || !data) return Swal.fire('Aviso', 'Título e Data são obrigatórios', 'warning', { background: 'rgba(11, 19, 43, 0.9)', color: '#fff' });
+
     try {
         await fetch('https://vogaapi.onrender.com/api/prazos', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tenantId: 1, titulo, dataVencimento: data, clienteAssociado: cliente })
         });
         document.getElementById('modal-novo-prazo').style.display = 'none';
-        Swal.fire({title: 'Salvo!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: 'rgba(47, 214, 94, 0.9)', color: '#fff'});
+        Swal.fire({ title: 'Salvo!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: 'rgba(47, 214, 94, 0.9)', color: '#fff' });
         carregarPrazos();
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
 }
 
 async function concluirPrazo(id) {
     try {
         await fetch(`https://vogaapi.onrender.com/api/prazos/${id}/status`, {
             method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: 'Concluido' })
         });
         carregarPrazos();
         adicionarNotificacao('Prazo marcado como concluído.');
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
 }
 
 async function removerPrazo(id) {
@@ -1271,7 +1272,7 @@ async function removerPrazo(id) {
         try {
             await fetch(`https://vogaapi.onrender.com/api/prazos/${id}`, { method: 'DELETE' });
             carregarPrazos();
-        } catch(e) { console.error(e); }
+        } catch (e) { console.error(e); }
     }
 }
 
@@ -1285,27 +1286,27 @@ function abrirModalLancamento() {
 async function carregarFinanceiro() {
     try {
         const res = await fetch('https://vogaapi.onrender.com/api/financeiro/1');
-        if(!res.ok) return;
+        if (!res.ok) return;
         const lancamentos = await res.json();
         const tbody = document.getElementById('tabela-financeiro');
-        if(!tbody) return;
-        
+        if (!tbody) return;
+
         let totalReceitas = 0;
         let totalDespesas = 0;
-        
+
         tbody.innerHTML = '';
         lancamentos.forEach(l => {
             const dataFmt = new Date(l.dataPagamento).toLocaleDateString('pt-BR');
             const valorFmt = l.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            
+
             let corLinha = l.tipo === 'Receita' ? '#2fd65e' : '#ff4d4d';
             let statusBadge = l.pago ? `<span style="color: #ccc;">Pago</span>` : `<span style="color: var(--cor-destaque);">Pendente</span>`;
-            
-            if(l.pago) {
-                if(l.tipo === 'Receita') totalReceitas += l.valor;
+
+            if (l.pago) {
+                if (l.tipo === 'Receita') totalReceitas += l.valor;
                 else totalDespesas += l.valor;
             }
-            
+
             tbody.innerHTML += `
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
                     <td style="padding: 10px; font-weight: bold; color: #fff;">${l.descricao}</td>
@@ -1320,14 +1321,14 @@ async function carregarFinanceiro() {
                 </tr>
             `;
         });
-        
+
         // Update KPIs
         const saldo = totalReceitas - totalDespesas;
         document.getElementById('kpi-receitas').innerText = totalReceitas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         document.getElementById('kpi-despesas').innerText = totalDespesas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         document.getElementById('kpi-saldo').innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        
-    } catch(e) { console.error(e); }
+
+    } catch (e) { console.error(e); }
 }
 
 async function salvarLancamento() {
@@ -1335,19 +1336,19 @@ async function salvarLancamento() {
     const valor = parseFloat(document.getElementById('lanc-valor').value);
     const tipo = document.getElementById('lanc-tipo').value;
     const data = document.getElementById('lanc-data').value;
-    
-    if(!descricao || !valor || !data) return Swal.fire('Aviso', 'Preencha todos os campos.', 'warning', {background: 'rgba(11, 19, 43, 0.9)', color: '#fff'});
-    
+
+    if (!descricao || !valor || !data) return Swal.fire('Aviso', 'Preencha todos os campos.', 'warning', { background: 'rgba(11, 19, 43, 0.9)', color: '#fff' });
+
     try {
         await fetch('https://vogaapi.onrender.com/api/financeiro', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tenantId: 1, descricao, valor, tipo, dataPagamento: data })
         });
         document.getElementById('modal-novo-lancamento').style.display = 'none';
-        Swal.fire({title: 'Lançamento Registrado!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: 'rgba(47, 214, 94, 0.9)', color: '#fff'});
+        Swal.fire({ title: 'Lançamento Registrado!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: 'rgba(47, 214, 94, 0.9)', color: '#fff' });
         carregarFinanceiro();
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
 }
 
 async function pagarLancamento(id) {
@@ -1355,7 +1356,7 @@ async function pagarLancamento(id) {
         await fetch(`https://vogaapi.onrender.com/api/financeiro/${id}/pagar`, { method: 'PUT' });
         carregarFinanceiro();
         adicionarNotificacao('Lançamento baixado com sucesso no fluxo de caixa.');
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
 }
 
 async function removerLancamento(id) {
@@ -1369,7 +1370,7 @@ async function removerLancamento(id) {
         try {
             await fetch(`https://vogaapi.onrender.com/api/financeiro/${id}`, { method: 'DELETE' });
             carregarFinanceiro();
-        } catch(e) { console.error(e); }
+        } catch (e) { console.error(e); }
     }
 }
 
