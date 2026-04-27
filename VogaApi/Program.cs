@@ -23,6 +23,7 @@ var app = builder.Build();
 app.UseCors("PermitirTudo");
 
 // 2. RECRIANDO O BANCO E SEMEANDO OS DADOS NO MYSQL
+// 2. RECRIANDO O BANCO E SEMEANDO OS DADOS NO MYSQL
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<VogaContext>();
@@ -35,6 +36,7 @@ using (var scope = app.Services.CreateScope())
 
     // Semeando os dados se o banco estiver vazio
     if (!db.Tenants.Any())
+    // ... resto do código continua igual ...
     {
         var primeiroEscritorio = new Tenant
         {
