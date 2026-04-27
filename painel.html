@@ -460,7 +460,8 @@
                                     0001234-56.2023.5.02.0001</h4>
                                 <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px;">
                                     <strong>Tribunal:</strong> TRT-2 (São Paulo) | <strong>Diário Oficial:</strong>
-                                    22/04/2026</p>
+                                    22/04/2026
+                                </p>
                                 <p
                                     style="color: #ccc; font-size: 0.85rem; border-left: 2px solid rgba(255,255,255,0.1); padding-left: 10px; font-style: italic;">
                                     "Ficam intimadas as partes para manifestação sobre o laudo pericial no prazo
@@ -482,7 +483,8 @@
                                 <h4 style="color: #fff; margin-bottom: 5px;">Divórcio Consensual nº
                                     1009876-11.2024.8.26.0100</h4>
                                 <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px;">
-                                    <strong>Tribunal:</strong> TJSP | <strong>Diário Oficial:</strong> 21/04/2026</p>
+                                    <strong>Tribunal:</strong> TJSP | <strong>Diário Oficial:</strong> 21/04/2026
+                                </p>
                                 <p
                                     style="color: #ccc; font-size: 0.85rem; border-left: 2px solid rgba(255,255,255,0.1); padding-left: 10px; font-style: italic;">
                                     "Ante o exposto, HOMOLOGO o acordo entabulado entre as partes, decretando o
@@ -1106,14 +1108,16 @@
 
                 <!-- VIEW: AGENDA JUDICIAL -->
                 <div id="view-agenda" class="view-section">
-                    <div class="header-painel" style="text-align: left; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="header-painel"
+                        style="text-align: left; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Agenda Judicial</h1>
+                            <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Agenda
+                                Judicial</h1>
                             <p style="color: #ccc; margin: 0;">Controle de prazos e audiências do escritório.</p>
                         </div>
                         <button class="btn-primario" onclick="abrirModalPrazo()">+ Novo Prazo</button>
                     </div>
-                    
+
                     <div class="hero-glass-container" style="padding: 20px;">
                         <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
                             <thead>
@@ -1134,9 +1138,11 @@
 
                 <!-- VIEW: FINANCEIRO -->
                 <div id="view-financeiro" class="view-section">
-                    <div class="header-painel" style="text-align: left; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="header-painel"
+                        style="text-align: left; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Financeiro</h1>
+                            <h1 style="margin-bottom: 5px; font-size: 1.8rem; color: var(--cor-destaque);">Financeiro
+                            </h1>
                             <p style="color: #ccc; margin: 0;">Fluxo de caixa e faturamento.</p>
                         </div>
                         <button class="btn-primario" onclick="abrirModalLancamento()">+ Novo Lançamento</button>
@@ -1157,7 +1163,7 @@
                             <div class="kpi-label">Saldo em Caixa</div>
                         </div>
                     </div>
-                    
+
                     <div class="hero-glass-container" style="padding: 20px;">
                         <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
                             <thead>
@@ -1344,7 +1350,8 @@
         </div>
     </div>
     <!-- Modal de Novo Prazo -->
-    <div id="modal-novo-prazo" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+    <div id="modal-novo-prazo"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
         <div class="hero-glass-container" style="max-width: 500px; width: 90%; padding: 20px; text-align: left;">
             <h2 style="color: var(--cor-destaque); margin-bottom: 20px;">Novo Prazo Judicial</h2>
             <div class="form-grupo">
@@ -1361,13 +1368,15 @@
             </div>
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button type="button" class="btn-primario" onclick="salvarPrazo()">Salvar Prazo</button>
-                <button type="button" class="btn-restrito" onclick="document.getElementById('modal-novo-prazo').style.display='none'">Cancelar</button>
+                <button type="button" class="btn-restrito"
+                    onclick="document.getElementById('modal-novo-prazo').style.display='none'">Cancelar</button>
             </div>
         </div>
     </div>
 
     <!-- Modal de Novo Lançamento -->
-    <div id="modal-novo-lancamento" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+    <div id="modal-novo-lancamento"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
         <div class="hero-glass-container" style="max-width: 500px; width: 90%; padding: 20px; text-align: left;">
             <h2 style="color: var(--cor-destaque); margin-bottom: 20px;">Novo Lançamento</h2>
             <div style="display: flex; gap: 15px;">
@@ -1383,7 +1392,8 @@
             <div style="display: flex; gap: 15px; margin-top: 10px;">
                 <div class="form-grupo" style="flex: 1;">
                     <label>Tipo</label>
-                    <select id="lanc-tipo" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 6px;">
+                    <select id="lanc-tipo"
+                        style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 6px;">
                         <option value="Receita">Receita (Entrada)</option>
                         <option value="Despesa">Despesa (Saída)</option>
                     </select>
@@ -1395,7 +1405,8 @@
             </div>
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button type="button" class="btn-primario" onclick="salvarLancamento()">Salvar Lançamento</button>
-                <button type="button" class="btn-restrito" onclick="document.getElementById('modal-novo-lancamento').style.display='none'">Cancelar</button>
+                <button type="button" class="btn-restrito"
+                    onclick="document.getElementById('modal-novo-lancamento').style.display='none'">Cancelar</button>
             </div>
         </div>
     </div>
