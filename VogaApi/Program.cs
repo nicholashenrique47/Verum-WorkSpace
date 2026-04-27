@@ -31,21 +31,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<VogaContext>();
 
-    // 1. Limpa absolutamente tudo para não haver conflitos
-    try
-    {
-        db.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS Lancamentos;");
-        db.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS Prazos;");
-        db.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS Clientes;");
-        db.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS DocumentosGerados;");
-        db.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS AreasAtuacao;");
-        db.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS Tenants;");
-        db.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS __EFMigrationsHistory;");
-    }
-    catch { }
-
-    // 2. Como o banco está 100% vazio, este comando vai ler a tua pasta Models 
-    // e criar TODAS as gavetas automaticamente (Tenants, Clientes, Prazos, etc.)
+    // 2. Este comando garante que as tabelas sejam criadas na primeira vez.
+    // O "Modo Trator" foi desativado para que os dados sobrevivam aos restarts do Render!
     db.Database.EnsureCreated();
 
     // 3. Semeando os dados
