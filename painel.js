@@ -35,6 +35,8 @@ function adicionarNotificacao(texto) {
     listaNotif.prepend(item);
 }
 async function carregarHistorico() {
+    showLoadingState('tabela-historico', 3);
+    showLoadingState('tabela-documentos-geral', 5);
     try {
         // Busca o histórico real da API C#
         const resposta = await fetch('https://vogaapi.onrender.com/api/documentos/1');
@@ -46,7 +48,10 @@ async function carregarHistorico() {
         const tbodyDashboard = document.getElementById('tabela-historico');
         if (tbodyDashboard) {
             tbodyDashboard.innerHTML = '';
-            documentos.slice(0, 5).forEach(doc => { // Mostra apenas os 5 últimos no dashboard
+            if (documentos.length === 0) {
+                showEmptyState('tabela-historico', 'Nenhum documento recente.', 3);
+            } else {
+                documentos.slice(0, 5).forEach(doc => { // Mostra apenas os 5 últimos no dashboard
                 const dataFormatada = new Date(doc.dataGeracao).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
@@ -56,14 +61,18 @@ async function carregarHistorico() {
                     <td style="padding: 10px; color: #aaa;">${doc.tipoDocumento}</td>
                 `;
                 tbodyDashboard.appendChild(tr);
-            });
+                });
+            }
         }
 
         // 2. ATUALIZA A ABA "DOCUMENTOS GERADOS" (Tabela Completa) - O QUE ESTAVA FALTANDO!
         const tbodyGeral = document.getElementById('tabela-documentos-geral');
         if (tbodyGeral) {
             tbodyGeral.innerHTML = '';
-            documentos.forEach(doc => {
+            if (documentos.length === 0) {
+                showEmptyState('tabela-documentos-geral', 'Você ainda não gerou nenhum documento.', 5);
+            } else {
+                documentos.forEach(doc => {
                 const dataFormatada = new Date(doc.dataGeracao).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
@@ -79,29 +88,34 @@ async function carregarHistorico() {
                 `;
                 tbodyGeral.appendChild(tr);
             });
+            }
         }
 
         // Tabela de Central de Assinaturas
         const tbodyAssinaturas = document.querySelector('#view-assinaturas tbody');
         if (tbodyAssinaturas) {
             tbodyAssinaturas.innerHTML = '';
-            documentos.forEach((doc) => {
-                const dataFormatada = new Date(doc.dataGeracao).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                const tr = document.createElement('tr');
-                tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
-                
-                const statusHtml = doc.assinado 
-                    ? `<span style="color: #2fd65e; border: 1px solid #2fd65e; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">Assinado</span>` 
-                    : `<span style="color: var(--cor-destaque); border: 1px solid var(--cor-destaque); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">Pendente</span>`;
+            if (documentos.length === 0) {
+                showEmptyState('view-assinaturas tbody', 'Nenhum documento aguardando assinatura.', 4);
+            } else {
+                documentos.forEach((doc) => {
+                    const dataFormatada = new Date(doc.dataGeracao).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+                    
+                    const statusHtml = doc.assinado 
+                        ? `<span style="color: #2fd65e; border: 1px solid #2fd65e; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">Assinado</span>` 
+                        : `<span style="color: var(--cor-destaque); border: 1px solid var(--cor-destaque); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">Pendente</span>`;
 
-                tr.innerHTML = `
-                    <td style="padding: 10px; font-weight: bold; color: #fff;">${doc.tipoDocumento.replace(/ /g, '_')}.doc</td>
-                    <td style="padding: 10px; color: #aaa;">${doc.nomeClienteFinal}</td>
-                    <td style="padding: 10px; color: #aaa;">${dataFormatada}</td>
-                    <td style="padding: 10px;">${statusHtml}</td>
-                `;
-                tbodyAssinaturas.appendChild(tr);
-            });
+                    tr.innerHTML = `
+                        <td style="padding: 10px; font-weight: bold; color: #fff;">${doc.tipoDocumento.replace(/ /g, '_')}.doc</td>
+                        <td style="padding: 10px; color: #aaa;">${doc.nomeClienteFinal}</td>
+                        <td style="padding: 10px; color: #aaa;">${dataFormatada}</td>
+                        <td style="padding: 10px;">${statusHtml}</td>
+                    `;
+                    tbodyAssinaturas.appendChild(tr);
+                });
+            }
         }
 
         // 3. ATUALIZA OS INDICADORES (KPIs)
@@ -665,6 +679,7 @@ inputTodo.addEventListener('keypress', (e) => {
 
 // 1. Função para CARREGAR os clientes do Banco de Dados
 async function carregarClientes() {
+    showLoadingState('tabela-clientes', 5);
     try {
         // Pede a lista de clientes do escritório 1 à tua API
         const resposta = await fetch('https://vogaapi.onrender.com/api/clientes/1');
@@ -681,6 +696,10 @@ async function carregarClientes() {
         const tbody = document.getElementById('tabela-clientes');
         if (tbody) {
             tbody.innerHTML = '';
+            if (clientes.length === 0) {
+                showEmptyState('tabela-clientes', 'Nenhum cliente cadastrado no seu banco de dados.', 5);
+                return;
+            }
             clientes.forEach((cli) => {
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
@@ -1232,6 +1251,7 @@ function abrirModalPrazo() {
 }
 
 async function carregarPrazos() {
+    showLoadingState('tabela-prazos', 5);
     try {
         const resposta = await fetch('https://vogaapi.onrender.com/api/prazos/1');
         if (!resposta.ok) throw new Error("Erro na API de Prazos");
@@ -1242,9 +1262,13 @@ async function carregarPrazos() {
         if (kpiProcessos) kpiProcessos.innerText = prazos.length;
 
         // 2. Preenche a Tabela da Agenda
-        const tbody = document.getElementById('tabela-agenda');
+        const tbody = document.getElementById('tabela-prazos');
         if (tbody) {
             tbody.innerHTML = '';
+            if (prazos.length === 0) {
+                showEmptyState('tabela-prazos', 'Não há prazos agendados.', 5);
+                return;
+            }
             prazos.forEach(prazo => {
                 const dataFormatada = new Date(prazo.dataVencimento).toLocaleDateString('pt-BR');
                 const tr = document.createElement('tr');
@@ -1317,6 +1341,7 @@ function abrirModalLancamento() {
 }
 
 async function carregarFinanceiro() {
+    showLoadingState('tabela-financeiro', 6);
     try {
         const resposta = await fetch('https://vogaapi.onrender.com/api/financeiro/1');
         if (!resposta.ok) throw new Error("Erro na API Financeira");
@@ -1335,6 +1360,10 @@ async function carregarFinanceiro() {
         const tbody = document.getElementById('tabela-financeiro');
         if (tbody) {
             tbody.innerHTML = '';
+            if (lancamentos.length === 0) {
+                showEmptyState('tabela-financeiro', 'Seu fluxo de caixa está vazio.', 6);
+                return;
+            }
             lancamentos.forEach(lanc => {
                 const dataFormatada = new Date(lanc.dataPagamento).toLocaleDateString('pt-BR');
                 const corValor = (lanc.tipo === "Saída" || lanc.tipo === "Despesa") ? "#ff4d4d" : "#4caf50";
@@ -1407,4 +1436,76 @@ document.addEventListener('DOMContentLoaded', () => {
         carregarFinanceiro();
     }, 1000);
 });
+
+// ==========================================
+// FASE M: UX/UI - MÁSCARAS E ESTADOS
+// ==========================================
+function maskCPF(v) {
+    v = v.replace(/\D/g, "");
+    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+    v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    return v;
+}
+
+function maskPhone(v) {
+    v = v.replace(/\D/g, "");
+    v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+    v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+    return v;
+}
+
+function maskCurrency(v) {
+    v = v.replace(/\D/g, "");
+    v = (v / 100).toFixed(2) + "";
+    v = v.replace(".", ",");
+    v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+    return "R$ " + v;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const inputCpf = document.getElementById('novo-cpf');
+    if (inputCpf) {
+        inputCpf.addEventListener('input', (e) => e.target.value = maskCPF(e.target.value));
+    }
+
+    const inputTelefone = document.getElementById('novo-telefone');
+    if (inputTelefone) {
+        inputTelefone.addEventListener('input', (e) => e.target.value = maskPhone(e.target.value));
+    }
+
+    const inputValor = document.getElementById('lanc-valor');
+    if (inputValor) {
+        inputValor.addEventListener('input', (e) => {
+            if (e.target.value === 'R$ ' || e.target.value === '') {
+                e.target.value = '';
+                return;
+            }
+            e.target.value = maskCurrency(e.target.value);
+        });
+    }
+});
+
+function showEmptyState(tbodyId, message, colSpan) {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="${colSpan}" class="empty-state">
+                <span class="empty-state-icon">📂</span>
+                <div class="empty-state-title">Nenhum registro encontrado</div>
+                <div class="empty-state-text">${message}</div>
+            </td>
+        </tr>
+    `;
+}
+
+function showLoadingState(tbodyId, colSpan) {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    tbody.innerHTML = `
+        <tr class="skeleton-dark"><td colspan="${colSpan}" style="padding: 20px;">Carregando...</td></tr>
+        <tr class="skeleton-dark"><td colspan="${colSpan}" style="padding: 20px;">Carregando...</td></tr>
+    `;
+}
 

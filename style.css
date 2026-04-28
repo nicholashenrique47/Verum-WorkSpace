@@ -1950,6 +1950,49 @@ body.light-mode .kpi-card {
     border-color: #e9ecef;
 }
 
+/* =========================================
+   14. UX/UI FASE M (Empty States e Skeletons)
+========================================= */
+/* Efeitos de Hover nas Tabelas */
+table tbody tr {
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+table tbody tr:hover {
+    background-color: rgba(212, 175, 55, 0.05) !important;
+}
+
+body.light-mode table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Empty State / Tabela Vazia */
+.empty-state {
+    text-align: center;
+    padding: 40px !important;
+    color: #888;
+}
+.empty-state-icon {
+    font-size: 2.5rem;
+    color: rgba(255, 255, 255, 0.1);
+    margin-bottom: 15px;
+    display: block;
+}
+body.light-mode .empty-state-icon {
+    color: rgba(0, 0, 0, 0.1);
+}
+.empty-state-title {
+    font-weight: 600;
+    color: #ccc;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+body.light-mode .empty-state-title {
+    color: #666;
+}
+.empty-state-text {
+    font-size: 0.9rem;
+}
+
 /* Print styles for PDF export */
 @media print {
     body * { visibility: hidden; }
